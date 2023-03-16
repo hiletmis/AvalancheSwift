@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "ennoutil",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/hiletmis/EnnoUtil.git",
+      "state" : {
+        "revision" : "a9d866d78b65ff752abcd19e56671242538e82f5",
+        "version" : "1.0.9"
+      }
+    }
+  ],
+  "version" : 2
+}
