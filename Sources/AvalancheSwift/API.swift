@@ -27,10 +27,10 @@ class API {
     private var pRequestBatch: [String] = []
     private var xIntRequestBatch: [String] = []
     
-    public private(set) static var shared: API!
-    
     private weak var delegate: AvalancheInitDelegate?
 
+    public private(set) static var shared: API!
+     
     public init(seed: String, delegate: AvalancheInitDelegate) {
         let (xIndex, xBatch) = getXBatch(seed, 0)
         let (xIntIndex, xIntBatch) = getXBatch(seed, 1)

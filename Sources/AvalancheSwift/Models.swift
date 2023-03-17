@@ -9,7 +9,7 @@ import BigInteger
 import Foundation
 
 // MARK: - AtomicTx
-struct AtomicTx: Codable {
+public struct AtomicTx: Codable {
     let jsonrpc: String
     let id: Int
     let method: String
@@ -17,25 +17,25 @@ struct AtomicTx: Codable {
 }
 
 // MARK: - Params
-struct ParamsAtomicTx: Codable {
+public struct ParamsAtomicTx: Codable {
     let txID, encoding: String
 }
 
 // MARK: - IssueTxResult
-struct IssueTxResult: Codable {
+public struct IssueTxResult: Codable {
     let jsonrpc: String
     let id: Int
     let result: ResultTx
 }
 
 // MARK: - Result
-struct ResultTx: Codable {
+public struct ResultTx: Codable {
     let txID: String?
     let tx: String?
 }
 
 // MARK: - IssueTx
-struct IssueTx: Codable {
+public struct IssueTx: Codable {
     let jsonrpc: String
     let id: Int
     let method: String
@@ -43,13 +43,13 @@ struct IssueTx: Codable {
 }
 
 // MARK: - Params
-struct ParamsTx: Codable {
+public struct ParamsTx: Codable {
     let tx, encoding: String
 }
 
 
 // MARK: - NFT
-struct NFTMarket: Codable {
+public struct NFTMarket: Codable {
     var name: String
     let address, token, symbol: String
     let id: Int
@@ -59,14 +59,14 @@ struct NFTMarket: Codable {
 }
 
 // MARK: - RPCModel
-struct RPCModel: Codable {
+public struct RPCModel: Codable {
     let jsonrpc, method: String
     let params: [String]
     let id: Int
 }
 
 // MARK: - PVMRPCModel
-struct PVMRPCModel: Codable {
+public struct PVMRPCModel: Codable {
     let jsonrpc: String
     let id: Int
     let method: String
@@ -74,7 +74,7 @@ struct PVMRPCModel: Codable {
 }
 
 // MARK: - Params
-struct Params: Codable {
+public struct Params: Codable {
     let address: String?
     let addresses: [String]?
     let assetID: String?
@@ -85,32 +85,32 @@ struct Params: Codable {
 }
 
 // MARK: - PChainBalance
-struct PChainBalance: Codable {
+public struct PChainBalance: Codable {
     let jsonrpc: String
     let result: Result
     let id: Int
 }
 
 // MARK: - Result
-struct Result: Codable {
+public struct Result: Codable {
     let balance: String
     let unlocked, lockedStakeable, lockedNotStakeable: String?
 }
 
 // MARK: - AddressChains
-struct AddressChains: Codable {
+public struct AddressChains: Codable {
     let addressChains: [String: [String]]
 }
 
 // MARK: - UTXOS
-struct UTXOS: Codable {
+public struct UTXOS: Codable {
     let jsonrpc: String
     let result: UTXOResult
     let id: Int
 }
 
 // MARK: - Result
-struct UTXOResult: Codable {
+public struct UTXOResult: Codable {
     let numFetched: String
     let utxos: [String]
     let endIndex: EndIndex
@@ -118,23 +118,23 @@ struct UTXOResult: Codable {
 }
 
 // MARK: - EndIndex
-struct EndIndex: Codable {
+public struct EndIndex: Codable {
     let address, utxo: String
 }
 
-struct AddressBalances: Codable {
+public struct AddressBalances: Codable {
     let chain: String
     let balance: Double
 }
 
-struct SECP256K1: Codable {
+public struct SECP256K1: Codable {
     let typeID: String
     let amount: String
     let locktime: String
     let threshold: String
 }
 
-struct UTXOOutput: Codable {
+public struct UTXOOutput: Codable {
     let codecID: String
     let txID: String
     let uTXOIndex: String
@@ -143,27 +143,27 @@ struct UTXOOutput: Codable {
 }
 
 // MARK: - GetStaked
-struct GetStaked: Codable {
+public struct GetStaked: Codable {
     let jsonrpc: String
     let result: ResultStake
     let id: Int
 }
 
 // MARK: - Result
-struct ResultStake: Codable {
+public struct ResultStake: Codable {
     let staked: String
     let stakedOutputs: [String]
     let encoding: String
 }
 
 // MARK: - TransferableOutput {
-struct TransferableOutput: Codable {
+public struct TransferableOutput: Codable {
     let asset_id: String
     let output: TransferOutput
 }
 
 // MARK: - TransferOutput
-struct TransferOutput: Codable {
+public struct TransferOutput: Codable {
     let type_id: Int32
     let amount: BigUInt
     let locktime: BigUInt
@@ -171,7 +171,7 @@ struct TransferOutput: Codable {
     let addresses: [String]
 }
 // MARK: - SECP256K1OutputOwners
-struct SECP256K1OutputOwners: Codable {
+public struct SECP256K1OutputOwners: Codable {
     let type_id: Int32
     let locktime: BigUInt
     let threshold: Int32
@@ -179,7 +179,7 @@ struct SECP256K1OutputOwners: Codable {
 }
 
 // MARK: - TransferableInput
-struct TransferableInput: Codable {
+public struct TransferableInput: Codable {
     let tx_id: String
     let utxo_index: Int32
     let asset_id: String
@@ -187,7 +187,7 @@ struct TransferableInput: Codable {
 }
 
 // MARK: - TransferInput
-struct TransferInput: Codable {
+public struct TransferInput: Codable {
     let type_id: Int32
     let amount: BigUInt
     let addresses: [Int]
@@ -197,7 +197,7 @@ struct TransferInput: Codable {
 
 
 // MARK: - ExportAvax-C
-struct BaseExportTxEvm: Codable {
+public struct BaseExportTxEvm: Codable {
     let typeID: Int32
     let networkID: Int32
     let blockchainID: String
@@ -207,7 +207,7 @@ struct BaseExportTxEvm: Codable {
 }
 
 // MARK: - ImportAvax-C
-struct BaseImportTxEvm: Codable {
+public struct BaseImportTxEvm: Codable {
     let typeID: Int32
     let networkID: Int32
     let blockchainID: String
@@ -218,14 +218,14 @@ struct BaseImportTxEvm: Codable {
 
 
 // MARK: - Unsigned Export Tx
-struct UnsignedExportTx: Codable {
+public struct UnsignedExportTx: Codable {
     let base_tx: [UInt8]
     let destination_chain: [UInt8]?
     let outs: [TransferableOutput]
 }
 
 // MARK: - ExportAvax
-struct BaseTx: Codable {
+public struct BaseTx: Codable {
     let type_id: Int32
     let network_id: Int32
     let blockchain_id: String
@@ -235,7 +235,7 @@ struct BaseTx: Codable {
 }
 
  // MARK: - UnsignedDelegator
- struct UnsignedDelegator: Codable {
+ public struct UnsignedDelegator: Codable {
      let baseTx: BaseTx
      let nodeId: String
      let startTime: BigUInt
@@ -246,7 +246,7 @@ struct BaseTx: Codable {
      let shares: Int32?
  }
 
-struct delegatorInfo {
+public struct delegatorInfo {
     var nodeId: String?
     var startTime: Int64
     var endTime: Int64
@@ -256,12 +256,12 @@ struct delegatorInfo {
 }
 
 // MARK: - Stake
-struct StakeTx: Codable {
+public struct StakeTx: Codable {
     let lockedOuts: [TransferableOutput]
 }
 
 // MARK: - Unsigned Import Tx
-struct UnsignedImportTx: Codable {
+public struct UnsignedImportTx: Codable {
     let base_tx: [UInt8]
     let source_chain: [UInt8]?
     let ins: [TransferableInput]
@@ -269,7 +269,7 @@ struct UnsignedImportTx: Codable {
 
    
    // MARK: - EVM Input
-   struct EVMInput: Codable {
+   public struct EVMInput: Codable {
        let address: String
        let amount: BigUInt
        let asset_id: String
@@ -278,7 +278,7 @@ struct UnsignedImportTx: Codable {
 
    
    // MARK: - EVM Output
-   struct EVMOutput: Codable {
+   public struct EVMOutput: Codable {
        let address: String
        let amount: BigUInt
        let asset_id: String
@@ -288,19 +288,19 @@ struct UnsignedImportTx: Codable {
 
 
 // MARK: - UTXOS
-struct ValidatorsModel: Codable {
+public struct ValidatorsModel: Codable {
     let jsonrpc: String
     let result: Validators
     let id: Int
 }
 
 // MARK: - Validators
-struct Validators: Codable {
+public struct Validators: Codable {
     let validators: [Validator]
 }
 
 // MARK: - Validator
-struct Validator: Codable {
+public struct Validator: Codable {
     let txID, startTime, endTime, stakeAmount: String
     let nodeID: String
     let rewardOwner: RewardOwner
@@ -310,7 +310,7 @@ struct Validator: Codable {
 }
 
 // MARK: - Delegator
-struct Delegator: Codable {
+public struct Delegator: Codable {
     let txID, startTime, endTime, stakeAmount: String
     let nodeID: String
     let rewardOwner: RewardOwner
@@ -318,7 +318,7 @@ struct Delegator: Codable {
 }
 
 // MARK: - RewardOwner
-struct RewardOwner: Codable {
+public struct RewardOwner: Codable {
     let locktime, threshold: String
     let addresses: [String]
 }
