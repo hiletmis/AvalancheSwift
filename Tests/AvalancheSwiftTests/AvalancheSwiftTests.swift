@@ -6,11 +6,11 @@ final class AvalancheSwiftTests: XCTestCase, AvalancheInitDelegate {
         return
     }
     
-    func balanceInitialized(chain: AvalancheSwift.Chain) {
+    func balanceInitialized(chain: Chain) {
         return
     }
     
-    func delegationInitialized(chain: AvalancheSwift.Chain) {
+    func delegationInitialized(chain: Chain) {
         return
     }
     

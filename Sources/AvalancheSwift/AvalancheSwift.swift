@@ -18,7 +18,11 @@ public final class AvalancheSwift {
     }
 
     public class func initialization(seed: String, delegate: AvalancheInitDelegate) {
-        AvalancheSwift.shared = AvalancheSwift(seed:seed, delegate: delegate)
+        if !isInitialized()  {
+            AvalancheSwift.shared = AvalancheSwift(seed:seed, delegate: delegate)
+        } else {
+            API.checkState()
+        }
     }
 
     public class func getChains() -> [Chain] {
