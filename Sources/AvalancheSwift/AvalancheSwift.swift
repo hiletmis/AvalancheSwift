@@ -20,7 +20,7 @@ public final class AvalancheSwift {
         if !isInitialized()  {
             AvalancheSwift.shared = AvalancheSwift(seed:seed, delegate: delegate)
         } else {
-            API.shared.checkState()
+            API.shared.checkState(delegate: delegate)
         }
     }
 

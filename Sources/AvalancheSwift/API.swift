@@ -27,31 +27,26 @@ class API {
     private var pRequestBatch: [String] = []
     private var xIntRequestBatch: [String] = []
     
-    private var isStakeChecked = false
-    private var isBalanceXChecked = false
-    private var isBalancePChecked = false
-    private var isBalanceXChangeChecked = false
-    
     public private(set) static var shared: API!
+    
+    private weak var delegate: AvalancheInitDelegate?
 
     public init(seed: String, delegate: AvalancheInitDelegate) {
         let (xIndex, xBatch) = getXBatch(seed, 0)
         let (xIntIndex, xIntBatch) = getXBatch(seed, 1)
- 
-        self.delegate = delegate
-        
+         
         initializeAddresses(indexWallet: xIndex, indexIntX: xIntIndex, wallet: xBatch, intX: xIntBatch)
-        checkState()
+        checkState(delegate: delegate)
     }
     
     public static func initial(seed: String, delegate: AvalancheInitDelegate) {
         API.shared = API(seed: seed, delegate: delegate)
     }
     
-    private weak var delegate: AvalancheInitDelegate?
 
-    func checkState() {
-        
+    func checkState(delegate: AvalancheInitDelegate) {
+        self.delegate = delegate
+
        checkChainAddresses(addresses: AddressesWallet) { [self] result in
            guard let result = result else {return}
            
@@ -74,21 +69,18 @@ class API {
                }
            }
            
-           getPlatformStake(addresses: pRequestBatch) { [self] in
-               isStakeChecked = true
-               delegate?.delegationInitialized(chain: Constants.chainP)
+           getPlatformStake(addresses: pRequestBatch) {
+               delegate.delegationInitialized(chain: Constants.chainP)
            }
            
-           getUTXOs(addresses: xRequestBatch, chain: Constants.chainX) { [self] balance in
+           getUTXOs(addresses: xRequestBatch, chain: Constants.chainX) { balance in
                Constants.chainX.addBalance(balance: balance, availableBalance: balance)
-               isBalanceXChecked = true
-               delegate?.balanceInitialized(chain: Constants.chainX)
+               delegate.balanceInitialized(chain: Constants.chainX)
            }
            
-           getUTXOs(addresses: pRequestBatch, chain: Constants.chainP) { [self] balance in
+           getUTXOs(addresses: pRequestBatch, chain: Constants.chainP) { balance in
                Constants.chainP.addBalance(balance: balance, availableBalance: balance)
-               isBalancePChecked = true
-               delegate?.balanceInitialized(chain: Constants.chainP)
+               delegate.balanceInitialized(chain: Constants.chainP)
            }
        }
        
@@ -107,10 +99,9 @@ class API {
                    }
                }
                  
-               getUTXOs(addresses: xIntRequestBatch, chain: Constants.chainX) { [self] balance in
+               getUTXOs(addresses: xIntRequestBatch, chain: Constants.chainX) { balance in
                    Constants.chainX.addBalance(balance: balance, availableBalance: balance)
-                   isBalanceXChangeChecked = true
-                   delegate?.balanceInitialized(chain: Constants.chainX)
+                   delegate.balanceInitialized(chain: Constants.chainX)
                }
            }
        }
