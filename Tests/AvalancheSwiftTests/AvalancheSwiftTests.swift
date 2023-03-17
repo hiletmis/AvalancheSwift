@@ -2,24 +2,19 @@ import XCTest
 @testable import AvalancheSwift
 
 final class AvalancheSwiftTests: XCTestCase, AvalancheInitDelegate {
-    
     func addressesInitialized() {
         return
     }
     
-    func balanceXInitialized() {
+    func balanceInitialized(chain: AvalancheSwift.Chain) {
         return
     }
     
-    func balancePInitialized() {
+    func delegationInitialized(chain: AvalancheSwift.Chain) {
         return
     }
     
-    func delegationInitialized() {
-        return
-    }
     
-
     private static let seed = "denial adult elevator below success birth sheriff front acid chef debate start"
 
     func testGetValidators() throws {

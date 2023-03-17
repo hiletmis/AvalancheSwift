@@ -72,19 +72,19 @@ class API {
            
            getPlatformStake(addresses: pRequestBatch) {
                isStakeChecked = true
-               delegate?.delegationInitialized()
+               delegate?.delegationInitialized(chain: Constants.chainP)
            }
            
            getUTXOs(addresses: xRequestBatch, chain: Constants.chainX) { balance in
                Constants.chainX.addBalance(balance: balance, availableBalance: balance)
                isBalanceXChecked = true
-               delegate?.balanceXInitialized()
+               delegate?.balanceInitialized(chain: Constants.chainX)
            }
            
            getUTXOs(addresses: pRequestBatch, chain: Constants.chainP) { balance in
                Constants.chainP.addBalance(balance: balance, availableBalance: balance)
                isBalancePChecked = true
-               delegate?.balancePInitialized()
+               delegate?.balanceInitialized(chain: Constants.chainP)
            }
        }
        
@@ -106,7 +106,7 @@ class API {
                getUTXOs(addresses: xIntRequestBatch, chain: Constants.chainX) { balance in
                    Constants.chainX.addBalance(balance: balance, availableBalance: balance)
                    isBalanceXChangeChecked = true
-                   delegate?.balanceXInitialized()
+                   delegate?.balanceInitialized(chain: Constants.chainX)
                }
            }
        }

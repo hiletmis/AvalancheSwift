@@ -25,6 +25,18 @@ public final class AvalancheSwift {
         return [Constants.chainX, Constants.chainP, Constants.chainC]
     }
 
+    public class func getXChain() -> Chain {
+        return Constants.chainX
+    }
+
+    public class func getPChain() -> Chain {
+        return Constants.chainP
+    }
+
+    public class func getCChain() -> Chain {
+        return Constants.chainC
+    }
+
     public class func getAddresses() -> [Chain] {
         return [Constants.chainX, Constants.chainP, Constants.chainC]
     }
