@@ -8,7 +8,7 @@
 import Foundation
 import EnnoUtil
 
-enum BlockchainId: String {
+public enum BlockchainId: String {
     case pBlockchain = "11111111111111111111111111111111LpoYY"
     case xBlockchain = "2oYMBNV4eNHyqk2fjjV5nVQLDbtmNJzq5s3qs3Lo6ftnC6FByM"
     case cBlockchain = "2q9e4r6Mu3U68nU1fYjgbR6JvwrRx36CohpAX5UQxse55x1Q5"
@@ -17,24 +17,7 @@ enum BlockchainId: String {
         return Web3Crypto.validateChecksum(datas: Base58Encoder.decode(self.rawValue))
     }
 }
-
-enum Chains: String {
-    case p = "P"
-    case x = "X"
-    case c = "C"
-    
-    func chain() -> Chain {
-        switch self {
-        case .p:
-            return Constants.chainP
-        case .x:
-            return Constants.chainX
-        case .c:
-            return Constants.chainC
-        }
-    }
-}
-
+ 
 enum assetId: String {
     case avaxAssetId = "FvwEAhmxKfeiG8SnEvq42hc6whRyY3EFYAvebMqDNDGCgxN5Z"
     
@@ -45,16 +28,16 @@ enum assetId: String {
 
 public class Chain {
     
-    let identifier: String
-    let blockchainId : BlockchainId
-    let getUTXOs: String
-    let issueTx: String
-    let evm: String
-    let exportAvaxType: Int32
-    let importAvaxType: Int32
-    var balance: Double
-    var availableBalance: Double
-    var stakedBalance: Double
+    public let identifier: String
+    public let blockchainId : BlockchainId
+    public let getUTXOs: String
+    public let issueTx: String
+    public let evm: String
+    public let exportAvaxType: Int32
+    public let importAvaxType: Int32
+    public var balance: Double
+    public var availableBalance: Double
+    public var stakedBalance: Double
     
     init(identifier: String, blockchainId: BlockchainId, getUTXOs: String, issueTx: String, evm: String, exportAvaxType: Int32, importAvaxType: Int32) {
         self.identifier = identifier
