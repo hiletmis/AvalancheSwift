@@ -5,11 +5,10 @@ public final class AvalancheSwift {
     public private(set) static var shared: AvalancheSwift!
 
     init(seed: String, delegate: AvalancheInitDelegate) {
-        API.initKey(seed: seed, delegate: delegate)
+        API.initial(seed: seed, delegate: delegate)
     }
     
     deinit {
-        API.deInit()
         AvalancheSwift.shared = nil
     }
 
@@ -21,7 +20,7 @@ public final class AvalancheSwift {
         if !isInitialized()  {
             AvalancheSwift.shared = AvalancheSwift(seed:seed, delegate: delegate)
         } else {
-            API.checkState()
+            API.shared.checkState()
         }
     }
 

@@ -11,44 +11,48 @@ import EnnoUtil
 
 class API {
     
-    private static var indexAddressesWallet:[String] = []
-    private static var indexAddressesIntX:[String] = []
+    private var indexAddressesWallet:[String] = []
+    private var indexAddressesIntX:[String] = []
     
-    private static var AddressesWallet:[String] = []
-    private static var AddressesIntX:[String] = []
+    private var AddressesWallet:[String] = []
+    private var AddressesIntX:[String] = []
     
-    private static var xPub: String?
+    private var xPub: String?
     
-    private static var indexX = 0
-    private static var indexP = 0
-    private static var indexIntX = 0
+    private var indexX = 0
+    private var indexP = 0
+    private var indexIntX = 0
     
-    private static var xRequestBatch: [String] = []
-    private static var pRequestBatch: [String] = []
-    private static var xIntRequestBatch: [String] = []
+    private var xRequestBatch: [String] = []
+    private var pRequestBatch: [String] = []
+    private var xIntRequestBatch: [String] = []
     
-    private static var isStakeChecked = false
-    private static var isBalanceXChecked = false
-    private static var isBalancePChecked = false
-    private static var isBalanceXChangeChecked = false
-        
-    private static weak var delegate: AvalancheInitDelegate?
+    private var isStakeChecked = false
+    private var isBalanceXChecked = false
+    private var isBalancePChecked = false
+    private var isBalanceXChangeChecked = false
+    
+    public private(set) static var shared: API!
 
-    class func initKey(seed: String, delegate: AvalancheInitDelegate) {
-        
+    public init(seed: String, delegate: AvalancheInitDelegate) {
         let (xIndex, xBatch) = getXBatch(seed, 0)
         let (xIntIndex, xIntBatch) = getXBatch(seed, 1)
-        
+ 
         self.delegate = delegate
         
         initializeAddresses(indexWallet: xIndex, indexIntX: xIntIndex, wallet: xBatch, intX: xIntBatch)
         checkState()
-        
     }
+    
+    public static func initial(seed: String, delegate: AvalancheInitDelegate) {
+        API.shared = API(seed: seed, delegate: delegate)
+    }
+    
+    private weak var delegate: AvalancheInitDelegate?
 
-    class func checkState() {
+    func checkState() {
         
-       checkChainAddresses(addresses: AddressesWallet) { result in
+       checkChainAddresses(addresses: AddressesWallet) { [self] result in
            guard let result = result else {return}
            
            for item in result.addressChains {
@@ -70,25 +74,25 @@ class API {
                }
            }
            
-           getPlatformStake(addresses: pRequestBatch) {
+           getPlatformStake(addresses: pRequestBatch) { [self] in
                isStakeChecked = true
                delegate?.delegationInitialized(chain: Constants.chainP)
            }
            
-           getUTXOs(addresses: xRequestBatch, chain: Constants.chainX) { balance in
+           getUTXOs(addresses: xRequestBatch, chain: Constants.chainX) { [self] balance in
                Constants.chainX.addBalance(balance: balance, availableBalance: balance)
                isBalanceXChecked = true
                delegate?.balanceInitialized(chain: Constants.chainX)
            }
            
-           getUTXOs(addresses: pRequestBatch, chain: Constants.chainP) { balance in
+           getUTXOs(addresses: pRequestBatch, chain: Constants.chainP) { [self] balance in
                Constants.chainP.addBalance(balance: balance, availableBalance: balance)
                isBalancePChecked = true
                delegate?.balanceInitialized(chain: Constants.chainP)
            }
        }
        
-       checkChainAddresses(addresses: AddressesIntX, inner: true) { result in
+       checkChainAddresses(addresses: AddressesIntX, inner: true) { [self] result in
            if let result = result {
                for item in result.addressChains {
                    if let address = AddressesIntX.first(where: {$0.contains(item.key)}) {
@@ -103,7 +107,7 @@ class API {
                    }
                }
                  
-               getUTXOs(addresses: xIntRequestBatch, chain: Constants.chainX) { balance in
+               getUTXOs(addresses: xIntRequestBatch, chain: Constants.chainX) { [self] balance in
                    Constants.chainX.addBalance(balance: balance, availableBalance: balance)
                    isBalanceXChangeChecked = true
                    delegate?.balanceInitialized(chain: Constants.chainX)
@@ -113,7 +117,7 @@ class API {
 
     }
     
-    class func initializeAddresses(indexWallet: [String], indexIntX: [String], wallet: [String], intX: [String]) {
+    func initializeAddresses(indexWallet: [String], indexIntX: [String], wallet: [String], intX: [String]) {
         
         indexAddressesWallet = indexWallet
         indexAddressesIntX = indexIntX
@@ -126,7 +130,7 @@ class API {
         delegate?.addressesInitialized()
     }
     
-    class func deInit() {
+    func deInit() {
         
         indexAddressesWallet = []
         indexAddressesIntX = []
@@ -138,7 +142,7 @@ class API {
         
     }
   
-    class func delegateAvax(info: delegatorInfo, amount: String, isValidate: Bool = false, completion: @escaping (_ transaction: UnsignedDelegator?) -> () ) {
+    func delegateAvax(info: delegatorInfo, amount: String, isValidate: Bool = false, completion: @escaping (_ transaction: UnsignedDelegator?) -> () ) {
         
         let typeId:Int32 = isValidate ? 12 : 14
         
@@ -204,7 +208,7 @@ class API {
         }
     }
     
-    class func importAvaxC(from: Chain, to: Chain, web3Address: String, completion: @escaping (_ transaction: BaseImportTxEvm?)->()) {
+    func importAvaxC(from: Chain, to: Chain, web3Address: String, completion: @escaping (_ transaction: BaseImportTxEvm?)->()) {
         
         let addresses = AddressesWallet.map({to.identifier + "-" + $0})
         let blockchainId = to.blockchainId.rawValue
@@ -243,7 +247,7 @@ class API {
         }
     }
     
-    class func importAvax(from: Chain, to: Chain, completion: @escaping (_ transaction: UnsignedImportTx?)->()) {
+    func importAvax(from: Chain, to: Chain, completion: @escaping (_ transaction: UnsignedImportTx?)->()) {
 
         var addresses = AddressesWallet.map({to.identifier + "-" + $0})
         let blockchainId = to.blockchainId.rawValue
@@ -303,7 +307,7 @@ class API {
         }
     }
     
-    class func exportToAvaxC(from: Chain, to: Chain, amount: String, web3Address: String, nonce: BigUInt, completion: @escaping (_ transaction: BaseExportTxEvm?)->()) {
+    func exportToAvaxC(from: Chain, to: Chain, amount: String, web3Address: String, nonce: BigUInt, completion: @escaping (_ transaction: BaseExportTxEvm?)->()) {
         
         let fee: BigUInt = 350937
         let amount = Util.double2BigUInt(amount, 9)
@@ -332,7 +336,7 @@ class API {
         completion(export)
     }
     
-    class func exportAvax(from: Chain, to: Chain, amount: String, completion: @escaping (_ transaction: UnsignedExportTx?)->()) {
+    func exportAvax(from: Chain, to: Chain, amount: String, completion: @escaping (_ transaction: UnsignedExportTx?)->()) {
  
         let addresses = AddressesWallet.map({from.identifier + "-" + $0})
         guard let exportTo = addresses.first else {return}
@@ -387,7 +391,7 @@ class API {
         }
     }
     
-    class func createTx(transaction: [UInt8], chain: Chain, signature : [[UInt8]], isSegwit: Bool, completion: @escaping (_ transaction: IssueTxResult?)->()) {
+    func createTx(transaction: [UInt8], chain: Chain, signature : [[UInt8]], isSegwit: Bool, completion: @escaping (_ transaction: IssueTxResult?)->()) {
         var bsize = transaction.count
         
         let crdlen = TypeEncoder.byter(input: Int32(signature.count), len: 4)
@@ -426,7 +430,7 @@ class API {
         }
     }
     
-    class func getAddressUTXOs(addresses: [String], chain: Chain, sourceChain: Chain, completion: @escaping (_ utxos: [TransferableInput])->()) {
+    func getAddressUTXOs(addresses: [String], chain: Chain, sourceChain: Chain, completion: @escaping (_ utxos: [TransferableInput])->()) {
         
         var allAddresses = addresses
         
@@ -449,7 +453,7 @@ class API {
                                                              sourceChain: sourceChain.identifier,
                                                              limit: 200, encoding: "hex", subnetID: nil))
         
-        RequestService.New(rURL: url, postData: xUTXORequest.data, sender: UTXOS.self) { result, statusCode, error in
+        RequestService.New(rURL: url, postData: xUTXORequest.data, sender: UTXOS.self) { [self] result, statusCode, error in
             guard let xAddressChainsList = result else {
                 completion([])
                 return
@@ -504,7 +508,7 @@ class API {
         }
     }
 
-    class func getUTXOs(addresses: [String], chain: Chain, completion: @escaping (_ balance: Double) -> ()) {
+    func getUTXOs(addresses: [String], chain: Chain, completion: @escaping (_ balance: Double) -> ()) {
         let function = chain.getUTXOs
         let url = chain.evm
         
@@ -533,7 +537,7 @@ class API {
         }
     }
     
-    class func getValidators(completion: @escaping (_ list: ValidatorsModel?)->()) {
+    func getValidators(completion: @escaping (_ list: ValidatorsModel?)->()) {
          
         let xBalanceRequest = PVMRPCModel.init(jsonrpc: "2.0",
                                                id: 1,
@@ -546,7 +550,7 @@ class API {
         }
     }
     
-    class func checkChainAddresses(addresses: [String], inner: Bool = false, completion: @escaping (_ result: AddressChains?)->()) {
+    func checkChainAddresses(addresses: [String], inner: Bool = false, completion: @escaping (_ result: AddressChains?)->()) {
         
         struct addressBatch: Codable {
             let address: [String]
@@ -560,7 +564,7 @@ class API {
         }
     }
     
-    class func sign(seed: String, buffer: Data, sigs: [Int], isSegwit: Bool = true) -> [[UInt8]] {
+    func sign(seed: String, buffer: Data, sigs: [Int], isSegwit: Bool = true) -> [[UInt8]] {
         
         var result:[[UInt8]] = []
         let coinIndex = !isSegwit ? 60 : 9000
@@ -590,7 +594,7 @@ class API {
     }
        
     
-    class func getPlatformStake(addresses: [String], completion: @escaping ()->()) {
+    func getPlatformStake(addresses: [String], completion: @escaping ()->()) {
          
          let xBalanceRequest = PVMRPCModel.init(jsonrpc: "2.0",
                                                 id: 1,
@@ -609,13 +613,11 @@ class API {
          }
      }
      
-    private class func getXBatch(_ seed: String, _ accountIndex: Int = 0) -> ([String], [String]) {
+    private func getXBatch(_ seed: String, _ accountIndex: Int = 0) -> ([String], [String]) {
         
         var addresses:[String] = []
         var indexes:[String] = []
-        
-        xPub = Web3Crypto.getBip32Key(seed: seed).publicKey.toHexString()
-        
+                
         if let xPrv = CryptoUtil.shared.web3xPrv(seed: seed, path: "m/44\'/9000\'/0\'") {
             let xAccountDepth = Web3Crypto.deriveExtPrivKey(xPrv: xPrv, depth: 3, index: accountIndex)
             

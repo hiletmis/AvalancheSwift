@@ -21,7 +21,7 @@ final class AvalancheSwiftTests: XCTestCase, AvalancheInitDelegate {
         
         let expectation = self.expectation(description: "Get Validators")
 
-        API.getValidators { list in
+        API.shared.getValidators { list in
             XCTAssertNotNil(list)
             expectation.fulfill()
         }
@@ -32,6 +32,14 @@ final class AvalancheSwiftTests: XCTestCase, AvalancheInitDelegate {
         XCTAssertFalse(AvalancheSwift.isInitialized())
         AvalancheSwift.initialization(seed: AvalancheSwiftTests.seed, delegate: self)
         XCTAssertTrue(AvalancheSwift.isInitialized())
+        
+        let expectation = self.expectation(description: "Get Validators")
+
+        API.shared.getValidators { list in
+            XCTAssertNotNil(list)
+            expectation.fulfill()
+        }
+        waitForExpectations(timeout: 25, handler: nil)
 
     }
     
@@ -41,7 +49,7 @@ final class AvalancheSwiftTests: XCTestCase, AvalancheInitDelegate {
         
         let expectation = self.expectation(description: "Export")
 
-        API.exportAvax(from: Constants.chainX, to: Constants.chainP, amount: "0.01") { transaction in
+        API.shared.exportAvax(from: Constants.chainX, to: Constants.chainP, amount: "0.01") { transaction in
             XCTAssertNotNil(transaction)
             expectation.fulfill()
         }
