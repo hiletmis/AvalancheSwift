@@ -1,4 +1,33 @@
-public struct AvalancheSwift {
-    public init() {
+import Foundation
+
+public final class AvalancheSwift {
+     
+    public private(set) static var shared: AvalancheSwift!
+
+    init(seed: String, delegate: AvalancheInitDelegate) {
+        API.initKey(seed: seed, delegate: delegate)
     }
+    
+    deinit {
+        API.deInit()
+        AvalancheSwift.shared = nil
+    }
+
+    public class func isInitialized() -> Bool {
+        return AvalancheSwift.shared != nil
+    }
+
+    public class func initialization(seed: String, delegate: AvalancheInitDelegate) {
+        AvalancheSwift.shared = AvalancheSwift(seed:seed, delegate: delegate)
+    }
+
+    public class func getChains() -> [Chain] {
+        return [Constants.chainX, Constants.chainP, Constants.chainC]
+    }
+
+    public class func getAddresses() -> [Chain] {
+        return [Constants.chainX, Constants.chainP, Constants.chainC]
+    }
+
 }
+

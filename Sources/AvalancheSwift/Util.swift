@@ -69,39 +69,55 @@ class Util {
         return "0x" + EnnoUtil.Web3Crypto.checksum(datas: data).toHexString()
     }
     
+    class func double2BigUInt(_ val: String, _ decimal: Int) -> BigUInt {
+        let sanite = val.replacingOccurrences(of: ",", with: "")
+        let parts = sanite.split(separator: ".")
+        var bigAmount: BigUInt = 0
+        
+        if let numberPart = BigUInt.init(parts[0]) {
+            bigAmount = numberPart.multiplied(by: BigUInt(10).power(decimal))
+        }
+        
+        if parts.count > 1 {
+            if let decimalPart = BigUInt.init(parts[1]) {
+                let base = BigUInt(10).power(decimal - parts[1].count)
+                let foundation = base * decimalPart
+                bigAmount += foundation
+            }
+        }
+ 
+        return bigAmount
+    }
+    
     class func sortLexi(utxos: [TransferableInput], amount: BigUInt, sortOnly: Bool = false) ->  [TransferableInput] {
-      
-        //let sorted = utxos.sorted(by: {
-        //    let comp1 = decodeBase58Check(data: $0.tx_id)!
-        //    let comp2 = decodeBase58Check(data: $1.tx_id)!
-        //
-        //    return comp1[0] < comp2[0]
-        //})
- //
-        //let sortByUtxo = sorted.sorted(by: {
-        //    return $0.tx_id == $1.tx_id && $0.utxo_index < $1.utxo_index
-        //})
- //
-        //if sortOnly {
-        //    return sortByUtxo
-        //}
-    //
-        //var filtered: [TransferableInput] = []
-        //
-        //var total: BigUInt = 0
-        //
-        //for item in sortByUtxo {
-        //
-        //    if item.input.locked == 0 {
-        //        total += item.input.amount
-        //    }
-        //
-        //    filtered.append(item)
-        //
-        //    if total > amount {
-        //        return filtered
-        //    }
-        //}
+        let sorted = utxos.sorted(by: {
+            let comp1 = decodeBase58Check(data: $0.tx_id)
+            let comp2 = decodeBase58Check(data: $1.tx_id)
+        
+            return comp1[0] < comp2[0]
+        })
+        let sortByUtxo = sorted.sorted(by: {
+            return $0.tx_id == $1.tx_id && $0.utxo_index < $1.utxo_index
+        })
+        if sortOnly {
+            return sortByUtxo
+        }
+        var filtered: [TransferableInput] = []
+        
+        var total: BigUInt = 0
+        
+        for item in sortByUtxo {
+        
+            if item.input.locked == 0 {
+                total += item.input.amount
+            }
+        
+            filtered.append(item)
+        
+            if total > amount {
+                return filtered
+            }
+        }
         return []
     }
     

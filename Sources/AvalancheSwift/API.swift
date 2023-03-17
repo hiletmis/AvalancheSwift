@@ -7,19 +7,143 @@
 
 import Foundation
 import BigInteger
+import EnnoUtil
 
 class API {
     
-    public static var indexAddressesWallet:[String] = []
-    public static var indexAddressesIntX:[String] = []
+    private static var indexAddressesWallet:[String] = []
+    private static var indexAddressesIntX:[String] = []
     
-    public static var AddressesWallet:[String] = []
-    public static var AddressesIntX:[String] = []
-     
-    class func delegateAvax(info: delegatorInfo, amount: BigUInt, isValidate: Bool = false, completion: @escaping (_ transaction: UnsignedDelegator?)->()) {
+    private static var AddressesWallet:[String] = []
+    private static var AddressesIntX:[String] = []
+    
+    private static var xPub: String?
+    
+    private static var indexX = 0
+    private static var indexP = 0
+    private static var indexIntX = 0
+    
+    private static var xRequestBatch: [String] = []
+    private static var pRequestBatch: [String] = []
+    private static var xIntRequestBatch: [String] = []
+    
+    private static var isStakeChecked = false
+    private static var isBalanceXChecked = false
+    private static var isBalancePChecked = false
+    private static var isBalanceXChangeChecked = false
+        
+    private static weak var delegate: AvalancheInitDelegate?
+
+    class func initKey(seed: String, delegate: AvalancheInitDelegate) {
+        
+        let (xIndex, xBatch) = getXBatch(seed, 0)
+        let (xIntIndex, xIntBatch) = getXBatch(seed, 1)
+        
+        self.delegate = delegate
+        
+        initializeAddresses(indexWallet: xIndex, indexIntX: xIntIndex, wallet: xBatch, intX: xIntBatch)
+        checkState()
+        
+    }
+
+    class func checkState() {
+        
+       checkChainAddresses(addresses: AddressesWallet) { result in
+           guard let result = result else {return}
+           
+           for item in result.addressChains {
+               if let address = AddressesWallet.first(where: {$0.contains(item.key)}) {
+                   
+                   let addressIndex = AddressesWallet.firstIndex(of: address) ?? 0
+                   
+                   if item.value.contains(BlockchainId.xBlockchain.rawValue) {
+                       indexX = addressIndex > indexX ? addressIndex : indexX
+                       xRequestBatch.append("X-" + item.key)
+                       self.indexX = indexX
+                   }
+                   
+                   if item.value.contains(BlockchainId.pBlockchain.rawValue) {
+                       indexP = addressIndex > indexP ? addressIndex : indexP
+                       pRequestBatch.append("P-" + item.key)
+                       self.indexP = indexP
+                   }
+               }
+           }
+           
+           getPlatformStake(addresses: pRequestBatch) {
+               isStakeChecked = true
+               delegate?.delegationInitialized()
+           }
+           
+           getUTXOs(addresses: xRequestBatch, chain: Constants.chainX) { balance in
+               Constants.chainX.addBalance(balance: balance, availableBalance: balance)
+               isBalanceXChecked = true
+               delegate?.balanceXInitialized()
+           }
+           
+           getUTXOs(addresses: pRequestBatch, chain: Constants.chainP) { balance in
+               Constants.chainP.addBalance(balance: balance, availableBalance: balance)
+               isBalancePChecked = true
+               delegate?.balancePInitialized()
+           }
+       }
+       
+       checkChainAddresses(addresses: AddressesIntX, inner: true) { result in
+           if let result = result {
+               for item in result.addressChains {
+                   if let address = AddressesIntX.first(where: {$0.contains(item.key)}) {
+                       
+                       let addressIndex = AddressesIntX.firstIndex(of: address) ?? 0
+                       
+                       if item.value.contains(BlockchainId.xBlockchain.rawValue) {
+                           indexIntX = addressIndex > indexIntX ? addressIndex : indexIntX
+                           xIntRequestBatch.append("X-" + item.key)
+                           self.indexIntX = indexIntX
+                       }
+                   }
+               }
+                 
+               getUTXOs(addresses: xIntRequestBatch, chain: Constants.chainX) { balance in
+                   Constants.chainX.addBalance(balance: balance, availableBalance: balance)
+                   isBalanceXChangeChecked = true
+                   delegate?.balanceXInitialized()
+               }
+           }
+       }
+
+    }
+    
+    class func initializeAddresses(indexWallet: [String], indexIntX: [String], wallet: [String], intX: [String]) {
+        
+        indexAddressesWallet = indexWallet
+        indexAddressesIntX = indexIntX
+        AddressesWallet = wallet
+        AddressesIntX = intX
+        
+        Constants.chainX.clearBalance()
+        Constants.chainP.clearBalance()
+        
+        delegate?.addressesInitialized()
+    }
+    
+    class func deInit() {
+        
+        indexAddressesWallet = []
+        indexAddressesIntX = []
+        AddressesWallet = []
+        AddressesIntX = []
+        
+        Constants.chainX.clearBalance()
+        Constants.chainP.clearBalance()
+        
+    }
+  
+    class func delegateAvax(info: delegatorInfo, amount: String, isValidate: Bool = false, completion: @escaping (_ transaction: UnsignedDelegator?) -> () ) {
+        
         let typeId:Int32 = isValidate ? 12 : 14
         
         let addresses = AddressesWallet.map({"P-" + $0})
+        let amount = Util.double2BigUInt(info.weight, 9)
 
         guard let exportTo = addresses.first else {return}
 
@@ -116,7 +240,6 @@ class API {
             } else {
                 completion(nil)
             }
-             
         }
     }
     
@@ -180,10 +303,11 @@ class API {
         }
     }
     
-    class func exportToAvaxC(from: Chain, to: Chain, amount: BigUInt, web3Address: String, nonce: BigUInt, completion: @escaping (_ transaction: BaseExportTxEvm?)->()) {
+    class func exportToAvaxC(from: Chain, to: Chain, amount: String, web3Address: String, nonce: BigUInt, completion: @escaping (_ transaction: BaseExportTxEvm?)->()) {
         
         let fee: BigUInt = 350937
-        
+        let amount = Util.double2BigUInt(amount, 9)
+
         let addresses = AddressesWallet.map({from.identifier + "-" + $0})
         guard let exportTo = addresses.first else {return}
           
@@ -208,12 +332,13 @@ class API {
         completion(export)
     }
     
-    class func exportAvax(from: Chain, to: Chain, amount: BigUInt, completion: @escaping (_ transaction: UnsignedExportTx?)->()) {
+    class func exportAvax(from: Chain, to: Chain, amount: String, completion: @escaping (_ transaction: UnsignedExportTx?)->()) {
  
         let addresses = AddressesWallet.map({from.identifier + "-" + $0})
         guard let exportTo = addresses.first else {return}
         let fee: BigUInt = 1000000
         let destination_chain = to.blockchainId.rawValue
+        let amount = Util.double2BigUInt(amount, 9)
 
         getAddressUTXOs(addresses: addresses, chain: from, sourceChain: from) { utxos in
              
@@ -379,7 +504,7 @@ class API {
         }
     }
 
-    class func getUTXOs(addresses: [String], chain: Chain, completion: @escaping (_ balances: Any?, _ locked: Double)->()) {
+    class func getUTXOs(addresses: [String], chain: Chain, completion: @escaping (_ balance: Double) -> ()) {
         let function = chain.getUTXOs
         let url = chain.evm
         
@@ -393,50 +518,18 @@ class API {
         
         RequestService.New(rURL: url, postData: xBalanceRequest.data, sender: UTXOS.self) { result, statusCode, error in
             
-            guard let xAddressChains = result else {
-                completion(nil, 0)
-                return
-            }
+            guard let output = result else {
+                completion(0)
+                return }
             
             var totalBalance: BigUInt = 0
-            var lockedBalance: BigUInt = 0
-
             
-            _ = xAddressChains.result.utxos.map { expression -> UTXOOutput in
-                let codecID = expression.substr(2, 4) ?? "N/A"
-                let txID = expression.substr(6, 64) ?? "N/A"
-                let uTXOIndex = expression.substr(70, 8) ?? "N/A"
-                let assetId = expression.substr(78, 64) ?? "N/A"
-                
-                let typeID : String = expression.substr(142, 8) ?? "N/A"
-                let amount : String = expression.substr(150, 16) ?? "N/A"
-                let locktime : String = expression.substr(166, 16) ?? "N/A"
-                let threshold : String = expression.substr(182, 8) ?? "N/A"
-
-                let locktimeBigUInt = BigUInt(locktime, radix: 16)
-
-                if locktimeBigUInt == 0 {
-                    totalBalance += BigUInt(amount, radix: 16) ?? .zero
-                } else {
-                    lockedBalance += BigUInt(amount, radix: 16) ?? .zero
-                }
-                
-                let balance = SECP256K1.init(typeID: typeID, amount: amount, locktime: locktime, threshold: threshold)
-                return UTXOOutput.init(codecID: codecID, txID: txID, uTXOIndex: uTXOIndex, assetId: assetId, output: balance)
+            for item in output.result.utxos {
+                let amount : String = item.substr(150, 16) ?? "N/A"
+                totalBalance += BigUInt(amount, radix: 16) ?? .zero
             }
-            
-            //if chain == "X" {
-            //    xAvax.balance = Double.init(totalBalance) / pow(10, Double.init(9))
-            //    xAvax.availableBalance = Double.init(totalBalance) / pow(10, Double.init(9))
-            //    completion(xAvax, Double.init(lockedBalance) / pow(10, Double.init(9)))
-            //}
-            //
-            //if chain == "P" {
-            //    pAvax.balance = Double.init(totalBalance) / pow(10, Double.init(9))
-            //    pAvax.availableBalance = Double.init(totalBalance) / pow(10, Double.init(9))
-            //    completion(pAvax, Double.init(lockedBalance) / pow(10, Double.init(9)))
-            //}
-            
+          
+            completion(Double.init(totalBalance) / pow(10, Double.init(9)))
         }
     }
     
@@ -466,6 +559,78 @@ class API {
             completion(result)
         }
     }
-      
     
+    class func sign(seed: String, buffer: Data, sigs: [Int], isSegwit: Bool = true) -> [[UInt8]] {
+        
+        var result:[[UInt8]] = []
+        let coinIndex = !isSegwit ? 60 : 9000
+        
+        for ind in sigs {
+            var sig:[UInt8] = []
+            
+            let accountIndex = ind < 0 ? 1 : 0
+
+            if let account = EnnoUtil.CryptoUtil.shared.web3Account(
+                seed: seed,
+                path: "m/44\'/\(coinIndex)\'/0\'/\(accountIndex)/\(abs(ind))") {
+                
+                //if let privateKey: EthereumPrivateKey = try? EthereumPrivateKey(privateKey: account.privateKey.hexToBytes()) //{
+                //    let hash = CryptoUtil.shared.sha256(input: buffer.bytes)
+                //    if let signature = try? privateKey.signAvax(message: hash) {
+                //        sig.append(contentsOf: signature.r)
+                //        sig.append(contentsOf: signature.s)
+                //        sig.append(UInt8(signature.v))
+                //    }
+                //}
+            }
+            result.append(sig)
+        }
+        
+        return result
+    }
+       
+    
+    class func getPlatformStake(addresses: [String], completion: @escaping ()->()) {
+         
+         let xBalanceRequest = PVMRPCModel.init(jsonrpc: "2.0",
+                                                id: 1,
+                                                method: "platform.getStake",
+                                                params: .init(address: nil, addresses: addresses, assetID: nil, sourceChain: nil, limit: 100, encoding: "hex", subnetID: nil))
+         
+         RequestService.New(rURL: Constants.chainP.evm, postData: xBalanceRequest.data, sender: GetStaked.self) { result,_,_ in
+             guard let StakeAmount = result else {
+                 completion()
+                 return }
+             if let stake = Double.init(StakeAmount.result.staked) {
+                 Constants.chainP.setStakedBalance(stakedBalance: stake / pow(10, Double.init(9)))
+             }
+             
+             completion()
+         }
+     }
+     
+    private class func getXBatch(_ seed: String, _ accountIndex: Int = 0) -> ([String], [String]) {
+        
+        var addresses:[String] = []
+        var indexes:[String] = []
+        
+        xPub = Web3Crypto.getBip32Key(seed: seed).publicKey.toHexString()
+        
+        if let xPrv = CryptoUtil.shared.web3xPrv(seed: seed, path: "m/44\'/9000\'/0\'") {
+            let xAccountDepth = Web3Crypto.deriveExtPrivKey(xPrv: xPrv, depth: 3, index: accountIndex)
+            
+            for i in 0..<50 {
+                let xAddressDepth = Web3Crypto.deriveExtPrivKey(xPrv: Base58Encoder.encode(xAccountDepth!), depth: 4, index: i)
+                let privKey:[UInt8] = Array(xAddressDepth![46...77])
+
+                let ripesha = Web3Crypto.secp256k1Address(privKey: privKey)
+                let address = Web3Crypto.bech32Address(ripesha: ripesha, hrp: "avax")
+
+                addresses.append(address ?? "N/A")
+                indexes.append(ripesha.toHexString())
+
+            }
+        }
+        return (indexes, addresses)
+    }
 }

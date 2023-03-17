@@ -18,6 +18,23 @@ enum BlockchainId: String {
     }
 }
 
+enum Chains: String {
+    case p = "P"
+    case x = "X"
+    case c = "C"
+    
+    func chain() -> Chain {
+        switch self {
+        case .p:
+            return Constants.chainP
+        case .x:
+            return Constants.chainX
+        case .c:
+            return Constants.chainC
+        }
+    }
+}
+
 enum assetId: String {
     case avaxAssetId = "FvwEAhmxKfeiG8SnEvq42hc6whRyY3EFYAvebMqDNDGCgxN5Z"
     
@@ -26,7 +43,7 @@ enum assetId: String {
     }
 }
 
-class Chain {
+public class Chain {
     
     let identifier: String
     let blockchainId : BlockchainId
@@ -35,6 +52,9 @@ class Chain {
     let evm: String
     let exportAvaxType: Int32
     let importAvaxType: Int32
+    var balance: Double
+    var availableBalance: Double
+    var stakedBalance: Double
     
     init(identifier: String, blockchainId: BlockchainId, getUTXOs: String, issueTx: String, evm: String, exportAvaxType: Int32, importAvaxType: Int32) {
         self.identifier = identifier
@@ -44,6 +64,23 @@ class Chain {
         self.evm = evm
         self.exportAvaxType = exportAvaxType
         self.importAvaxType = importAvaxType
+        self.balance = 0
+        self.availableBalance = 0
+        self.stakedBalance = 0
+    }
+    
+    func clearBalance() {
+        self.balance = 0
+        self.availableBalance = 0
+    }
+    
+    func addBalance(balance: Double, availableBalance: Double) {
+        self.balance += balance
+        self.availableBalance += availableBalance
+    }
+
+    func setStakedBalance(stakedBalance: Double) {
+        self.stakedBalance = stakedBalance
     }
     
 }
