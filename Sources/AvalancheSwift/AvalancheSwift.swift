@@ -10,14 +10,15 @@ public final class AvalancheSwift {
     init() {}
     
     public class func initialize(seed: String) {
-        if AvalancheSwift.shared != nil {
-           return
-        }
-        
         let xBatch = AvaxAPI.getXBatch(seed, 0)
         let xIntBatch = AvaxAPI.getXBatch(seed, 1)
         
         AvaxAPI.initializeAddresses(wallet: xBatch, intX: xIntBatch)
+
+        if AvalancheSwift.shared != nil {
+           return
+        }
+        
         shared = AvalancheSwift()
     }
     
