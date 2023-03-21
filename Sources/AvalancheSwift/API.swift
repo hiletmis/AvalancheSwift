@@ -118,7 +118,7 @@ public final class AvaxAPI {
         Constants.chainP.clearBalance()
     }
     
-    class func delegateAvax(info: delegatorInfo, amount: String, isValidate: Bool = false, completion: @escaping (_ transaction: UnsignedDelegator?) -> () ) {
+    class func delegateAvax(info: delegatorInfo, amount: String, isValidate: Bool = false, completion: @escaping (_ transaction: [UInt8]?, _ signatureIndexes: [Int])->()) {
         
         let typeId:Int32 = isValidate ? 12 : 14
         
@@ -175,16 +175,17 @@ public final class AvaxAPI {
                                                             lockedOuts: [lockedOutput],
                                                             rewardsOwner: secpOutputOwner,
                                                             shares: info.shares)
-                     
-                    completion(delegateTx)
+                    
+                    let tx = TypeEncoder.encodeType(type: delegateTx)
+                    completion(tx, getPkeyInd(utxos: sorted))
                 }
             } else {
-                completion(nil)
+                completion(nil, [])
             }
         }
     }
     
-    class func importAvaxC(from: Chain, to: Chain, web3Address: String, completion: @escaping (_ transaction: BaseImportTxEvm?)->()) {
+    class func importAvaxC(from: Chain, to: Chain, web3Address: String, completion: @escaping (_ transaction: [UInt8]?, _ signatureIndexes: [Int])->()) {
         
         let addresses = AddressesWallet.map({to.identifier + "-" + $0})
         let blockchainId = to.blockchainId.rawValue
@@ -201,7 +202,7 @@ public final class AvaxAPI {
                 let sorted = Util.sortLexi(utxos:utxos, amount: 0, sortOnly: true)
                 
                 if availableBalance < fee {
-                    completion(nil)
+                    completion(nil, [])
                     return
                 }
                 
@@ -216,14 +217,17 @@ public final class AvaxAPI {
                                                     importedInputs: [evmOutput],
                                                     outs: sorted)
                 
-                completion(importTx)
+                if let tx = TypeEncoder.encoder(type: importTx) {
+                    completion(tx, getPkeyInd(utxos: sorted))
+                }
+                
             } else {
-                completion(nil)
+                completion(nil, [])
             }
         }
     }
     
-    class func importAvax(from: Chain, to: Chain, completion: @escaping (_ transaction: UnsignedImportTx?)->()) {
+    class func importAvax(from: Chain, to: Chain, completion: @escaping (_ transaction: [UInt8]?, _ signatureIndexes: [Int])->()) {
 
         var addresses = AddressesWallet.map({to.identifier + "-" + $0})
         let blockchainId = to.blockchainId.rawValue
@@ -244,7 +248,7 @@ public final class AvaxAPI {
                 let sorted = Util.sortLexi(utxos:utxos, amount: 0)
                                    
                 if availableBalance < fee {
-                    completion(nil)
+                    completion(nil, [])
                     return
                 }
                 
@@ -273,17 +277,18 @@ public final class AvaxAPI {
                                                            source_chain: Util.decodeBase58Check(data: source_chain),
                                                            ins: transferInput)
                     
-                    completion(unsignedTx)
+                    let result = TypeEncoder.encodeType(type: tx)
+                    completion(result, getPkeyInd(utxos: sorted))
 
                 }
             } else {
-                completion(nil)
+                completion(nil, [])
                 print("amountError")
             }
         }
     }
     
-    class func exportToAvaxC(from: Chain, to: Chain, amount: String, web3Address: String, nonce: String, completion: @escaping (_ transaction: BaseExportTxEvm?)->()) {
+    class func exportToAvaxC(from: Chain, to: Chain, amount: String, web3Address: String, nonce: String, completion: @escaping (_ transaction: [UInt8]?, _ signatureIndexes: [Int])->()) {
         guard let nonce = BigUInt(nonce, radix: 16) else { return }
         
         let fee: BigUInt = 350937
@@ -310,10 +315,12 @@ public final class AvaxAPI {
                                           destinationChain: to.blockchainId.rawValue,
                                           inputs: [evmInput], exportedOutputs: [transferOutput])
         
-        completion(export)
+        let result = TypeEncoder.encodeType(type: export)
+        completion(result, [0])
+        
     }
     
-    class func exportAvax(from: Chain, to: Chain, amount: String, completion: @escaping (_ transaction: UnsignedExportTx?)->()) {
+    class func exportAvax(from: Chain, to: Chain, amount: String, completion: @escaping (_ transaction: [UInt8]?, _ signatureIndexes: [Int])->()) {
  
         let addresses = AddressesWallet.map({from.identifier + "-" + $0})
         guard let exportTo = addresses.first else {return}
@@ -358,17 +365,18 @@ public final class AvaxAPI {
                                                            destination_chain: Util.decodeBase58Check(data: destination_chain),
                                                            outs: [transferDest])
                     
-                    completion(unsignedTx)
+                    let result = TypeEncoder.encodeType(type: unsignedTx)
+                    completion(result, getPkeyInd(utxos: sorted))
 
                 }
             } else {
-                completion(nil)
+                completion(nil, [])
                 print("amountError")
             }
         }
     }
     
-    class func createTx(transaction: [UInt8], chain: Chain, signature : [[UInt8]], isSegwit: Bool, completion: @escaping (_ transaction: IssueTxResult?)->()) {
+    class func createTx(transaction: [UInt8], chain: Chain, signature : [[UInt8]], completion: @escaping (_ txId: String?, _ tx: String?)->()) {
         var bsize = transaction.count
         
         let crdlen = TypeEncoder.byter(input: Int32(signature.count), len: 4)
@@ -403,7 +411,8 @@ public final class AvaxAPI {
         let issueTx = IssueTx.init(jsonrpc: "2.0", id: 1, method: function, params: paramsTx)
         
         RequestService.New(rURL: url, postData: issueTx.data, sender: IssueTxResult.self) { result, _, _ in
-            completion(result)
+            guard let result = result else { completion(nil, nil); return}
+            completion(result.result.txID, result.result.tx)
         }
     }
     
@@ -481,6 +490,16 @@ public final class AvaxAPI {
             completion(utxos)
         }
     }
+    
+    class func getPkeyInd(utxos: [TransferableInput]) -> [Int] {
+        var sigs: [Int] = []
+        for item in utxos {
+            for address in item.input.addresses {
+                sigs.append(address)
+            }
+        }
+        return sigs
+    }
 
     class func getUTXOs(addresses: [String], chain: Chain, completion: @escaping (_ balance: Double) -> ()) {
         let function = chain.getUTXOs
@@ -544,7 +563,7 @@ public final class AvaxAPI {
         let coinIndex = !isSegwit ? 60 : 9000
         
         for ind in sigs {
-            var sig:[UInt8] = []
+            var signature : [UInt8] = []
             
             let accountIndex = ind < 0 ? 1 : 0
 
@@ -561,7 +580,7 @@ public final class AvaxAPI {
                 //    }
                 //}
             }
-            result.append(sig)
+            result.append(signature)
         }
         
         return result
