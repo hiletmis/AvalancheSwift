@@ -2,72 +2,96 @@ import Foundation
 import BigInteger
 
 public final class AvalancheSwift {
-     
+
+    private weak var delegate: AvalancheInitDelegate?
+    
     public private(set) static var shared: AvalancheSwift!
 
-    init(seed: String, delegate: AvalancheInitDelegate) {
-        API.initial(seed: seed, delegate: delegate)
+    init() {}
+    
+    public class func initialize(seed: String, delegate: AvalancheInitDelegate) {
+        let xBatch = AvaxAPI.getXBatch(seed, 0)
+        let xIntBatch = AvaxAPI.getXBatch(seed, 1)
+        
+        AvaxAPI.initializeAddresses(wallet: xBatch, intX: xIntBatch)
+        shared = AvalancheSwift()
+    }
+    
+    public class func initialize(xPub: String, delegate: AvalancheInitDelegate) {
+        let xBatch = AvaxAPI.getXBatch(xPub, 0, isPubKey: true)
+        let xIntBatch = AvaxAPI.getXBatch(xPub, 1, isPubKey: true)
+        
+        AvaxAPI.initializeAddresses(wallet: xBatch, intX: xIntBatch)
+        shared = AvalancheSwift()
     }
     
     deinit {
         AvalancheSwift.shared = nil
     }
-
-    public class func isInitialized() -> Bool {
+    
+    public func isInitialized() -> Bool {
         return AvalancheSwift.shared != nil
     }
 
-    public class func initialization(seed: String, delegate: AvalancheInitDelegate) {
-        if !isInitialized()  {
-            AvalancheSwift.shared = AvalancheSwift(seed:seed, delegate: delegate)
-        } else {
-            API.shared.checkState(delegate: delegate)
-        }
-    }
-
-    public class func getChains() -> [Chain] {
+    public func getChains() -> [Chain] {
         return [Constants.chainX, Constants.chainP, Constants.chainC]
     }
 
-    public class func getXChain() -> Chain {
+    public func getXChain() -> Chain {
         return Constants.chainX
     }
 
-    public class func getPChain() -> Chain {
+    public func getPChain() -> Chain {
         return Constants.chainP
     }
 
-    public class func getCChain() -> Chain {
+    public func getCChain() -> Chain {
         return Constants.chainC
     }
 
-    public class func getAddresses() -> [Chain] {
+    public func getAddresses() -> [Chain] {
         return [Constants.chainX, Constants.chainP, Constants.chainC]
     }
 
-    public class func delegateAvax(info: delegatorInfo, amount: String, isValidate: Bool = false, completion: @escaping (_ transaction: UnsignedDelegator?) -> () ) {
-        API.shared.delegateAvax(info: info, amount: amount, completion: completion)
+    public func delegateAvax(info: delegatorInfo, amount: String, isValidate: Bool = false, completion: @escaping (_ transaction: UnsignedDelegator?) -> () ) {
+        AvaxAPI.delegateAvax(info: info, amount: amount, completion: completion)
     }
     
-    public class func importAvaxC(from: Chain, to: Chain, web3Address: String, completion: @escaping (_ transaction: BaseImportTxEvm?)->()) {
-        API.shared.importAvaxC(from: from, to: to, web3Address: web3Address, completion: completion)
+    public func checkState(delegate: AvalancheInitDelegate) {
+        AvaxAPI.checkState(delegate: delegate)
     }
     
-    public class func importAvax(from: Chain, to: Chain, completion: @escaping (_ transaction: UnsignedImportTx?)->()) {
-        API.shared.importAvax(from: from, to: to, completion: completion)
+    public func importAvaxC(from: String, to: String, web3Address: String, completion: @escaping (_ transaction: BaseImportTxEvm?)->()) {
+        guard let from = chainIdentifier.init(rawValue: from) else { return }
+        guard let to = chainIdentifier.init(rawValue: to) else { return }
+        
+        AvaxAPI.importAvaxC(from: from.getChain(), to: to.getChain(), web3Address: web3Address, completion: completion)
+    }
+    
+    public func importAvax(from: String, to: String, completion: @escaping (_ transaction: UnsignedImportTx?)->()) {
+        guard let from = chainIdentifier.init(rawValue: from) else { return }
+        guard let to = chainIdentifier.init(rawValue: to) else { return }
+        
+        AvaxAPI.importAvax(from: from.getChain(), to: to.getChain(), completion: completion)
     }
 
-    public class func exportToAvaxC(from: Chain, to: Chain, amount: String, web3Address: String, nonce: BigUInt, completion: @escaping (_ transaction: BaseExportTxEvm?)->()) {
-        API.shared.exportToAvaxC(from: from, to: to, amount: amount, web3Address: web3Address, nonce: nonce, completion: completion)
+    public func exportToAvaxC(from: String, to: String, amount: String, web3Address: String, nonce: BigUInt, completion: @escaping (_ transaction: BaseExportTxEvm?)->()) {
+        guard let from = chainIdentifier.init(rawValue: from) else { return }
+        guard let to = chainIdentifier.init(rawValue: to) else { return }
+        
+        AvaxAPI.exportToAvaxC(from: from.getChain(), to: to.getChain(), amount: amount, web3Address: web3Address, nonce: nonce, completion: completion)
     }
     
-    public class func exportAvax(from: Chain, to: Chain, amount: String, completion: @escaping (_ transaction: UnsignedExportTx?)->()) {
-        API.shared.exportAvax(from: from, to: to, amount: amount, completion: completion)
+    public func exportAvax(from: String, to: String, amount: String, completion: @escaping (_ transaction: UnsignedExportTx?)->()) {
+        guard let from = chainIdentifier.init(rawValue: from) else { return }
+        guard let to = chainIdentifier.init(rawValue: to) else { return }
+        
+        AvaxAPI.exportAvax(from: from.getChain(), to: to.getChain(), amount: amount, completion: completion)
     }
     
-    public class func createTx(transaction: [UInt8], chain: Chain, signature : [[UInt8]], isSegwit: Bool, completion: @escaping (_ transaction: IssueTxResult?)->()) {
-        API.shared.createTx(transaction: transaction, chain: chain, signature: signature, isSegwit: isSegwit, completion: completion)
+    public func createTx(transaction: [UInt8], chain: Chain, signature : [[UInt8]], isSegwit: Bool, completion: @escaping (_ transaction: IssueTxResult?)->()) {
+        AvaxAPI.createTx(transaction: transaction, chain: chain, signature: signature, isSegwit: isSegwit, completion: completion)
     }
-
+    
 }
 

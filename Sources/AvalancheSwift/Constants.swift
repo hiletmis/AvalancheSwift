@@ -26,6 +26,25 @@ enum assetId: String {
     }
 }
 
+enum chainIdentifier: String {
+    case x = "X"
+    case p = "P"
+    case c = "C"
+    
+    func getChain() -> Chain {
+        switch self {
+        case .x:
+            return Constants.chainX
+        case .p:
+            return Constants.chainP
+        case .c:
+            return Constants.chainC
+        default:
+            return Constants.chainX
+        }
+    }
+}
+
 public class Chain {
     
     public let identifier: String

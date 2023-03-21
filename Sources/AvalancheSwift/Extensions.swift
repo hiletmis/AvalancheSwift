@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BigInteger
 
 extension String {
 
@@ -93,5 +94,50 @@ public extension String {
         let start = index(startIndex, offsetBy: offset)
         let end = index(start, offsetBy: length)
         return String(self[start..<end])
+    }
+}
+
+
+extension SECP256K1OutputOwners {
+    func toByte() {
+        var encodedType:[UInt8] = []
+        
+        let typeId = self.type_id.byter(len: 4)
+        let locktime = self.locktime.byter(len: 8)
+        let threshold = self.threshold.byter(len: 4)
+        let addressSize = Int32(self.addresses.count).byter(len: 4)
+        
+        encodedType.append(contentsOf: typeId)
+        encodedType.append(contentsOf: locktime)
+        encodedType.append(contentsOf: threshold)
+        encodedType.append(contentsOf: addressSize)
+        
+        for address in self.addresses {
+            encodedType.append(contentsOf: Util.decodeSegwit(address: address))
+        }
+    }
+}
+
+
+
+
+
+
+
+extension Int32 {
+    func byter(len: Int) -> [UInt8] {
+        return withUnsafeBytes(of: self.bigEndian, Array.init)
+    }
+
+}
+extension String {
+    func byter() -> [UInt8] {
+        return data(using: String.Encoding.utf8, allowLossyConversion: true)?.bytes ?? Array(utf8)
+    }
+}
+
+extension BigUInt {
+    func byter(len: Int) -> [UInt8] {
+        return self.serialize().bytes
     }
 }
