@@ -110,6 +110,10 @@ public final class AvaxAPI {
         AddressesWallet = wallet
         AddressesIntX = intX
         
+        Constants.chainX.setAddress(address: "X-" + (wallet.first ?? ""))
+        Constants.chainP.setAddress(address: "P-" + (wallet.first ?? ""))
+        Constants.chainC.setAddress(address: "C-" + (wallet.first ?? ""))
+        
         Constants.chainX.clearBalance()
         Constants.chainP.clearBalance()
     }

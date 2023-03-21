@@ -15,9 +15,9 @@ final class AvalancheSwiftTests: XCTestCase, AvalancheInitDelegate {
     }
     
     
-    private static let seed = ""
+    private static let seed = "denial adult elevator below success birth sheriff front acid chef debate start"
     
-    private static let xPub = "xpub6CSvsuSCvspkjXwtw8ZfTf7NCkMxQ6oduViVfVbgKbuNDmmzTTXuErz45myaLFmrFYTnCbsGWPWocE8nEhkG3da5QHEnNkJPMRmouStoDCt"
+    private static let xPub = "xpub6DfraEiwmoaDgKamZCKcraHHwkcYLxDXU2xjjwJ7mS7Qa7AD5jusSyS5Vr21A7ewymavUeMTpLoa16oMYpkTWhbmyU7cc7jAHnaUiAGneNT"
     
     private static let xAddress = [
         "avax19hwrurj35x2jdxja4k429m7296la6yu5mvhum9",
@@ -77,7 +77,7 @@ final class AvalancheSwiftTests: XCTestCase, AvalancheInitDelegate {
     }
     
     func testInit() {        
-        AvalancheSwift.initialize(seed: AvalancheSwiftTests.seed, delegate: self)
+        AvalancheSwift.initialize(seed: AvalancheSwiftTests.seed)
 
         let expectation = self.expectation(description: "Get Validators")
 

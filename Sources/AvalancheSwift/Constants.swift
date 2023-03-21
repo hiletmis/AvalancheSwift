@@ -52,6 +52,7 @@ public class Chain {
     public let getUTXOs: String
     public let issueTx: String
     public let evm: String
+    public var latestAddress: String
     public let exportAvaxType: Int32
     public let importAvaxType: Int32
     public var balance: Double
@@ -69,11 +70,16 @@ public class Chain {
         self.balance = 0
         self.availableBalance = 0
         self.stakedBalance = 0
+        self.latestAddress = ""
     }
     
     func clearBalance() {
         self.balance = 0
         self.availableBalance = 0
+    }
+    
+    func setAddress(address: String) {
+        self.latestAddress = address
     }
     
     func addBalance(balance: Double, availableBalance: Double) {
