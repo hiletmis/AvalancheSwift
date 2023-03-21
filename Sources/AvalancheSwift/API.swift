@@ -176,7 +176,7 @@ public final class AvaxAPI {
                                                             rewardsOwner: secpOutputOwner,
                                                             shares: info.shares)
                     
-                    let tx = TypeEncoder.encodeType(type: delegateTx)
+                    let tx = TypeEncoder.encoder(type: delegateTx)
                     completion(tx, getPkeyInd(utxos: sorted))
                 }
             } else {
@@ -277,7 +277,7 @@ public final class AvaxAPI {
                                                            source_chain: Util.decodeBase58Check(data: source_chain),
                                                            ins: transferInput)
                     
-                    let result = TypeEncoder.encodeType(type: tx)
+                    let result = TypeEncoder.encoder(type: tx)
                     completion(result, getPkeyInd(utxos: sorted))
 
                 }
@@ -315,7 +315,7 @@ public final class AvaxAPI {
                                           destinationChain: to.blockchainId.rawValue,
                                           inputs: [evmInput], exportedOutputs: [transferOutput])
         
-        let result = TypeEncoder.encodeType(type: export)
+        let result = TypeEncoder.encoder(type: export)
         completion(result, [0])
         
     }
@@ -365,7 +365,7 @@ public final class AvaxAPI {
                                                            destination_chain: Util.decodeBase58Check(data: destination_chain),
                                                            outs: [transferDest])
                     
-                    let result = TypeEncoder.encodeType(type: unsignedTx)
+                    let result = TypeEncoder.encoder(type: unsignedTx)
                     completion(result, getPkeyInd(utxos: sorted))
 
                 }
