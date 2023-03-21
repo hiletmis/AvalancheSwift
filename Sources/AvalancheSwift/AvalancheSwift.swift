@@ -9,7 +9,11 @@ public final class AvalancheSwift {
 
     init() {}
     
-    public class func initialize(seed: String, delegate: AvalancheInitDelegate) {
+    public class func initialize(seed: String) {
+        if AvalancheSwift.shared != nil {
+           return
+        }
+        
         let xBatch = AvaxAPI.getXBatch(seed, 0)
         let xIntBatch = AvaxAPI.getXBatch(seed, 1)
         
@@ -17,7 +21,7 @@ public final class AvalancheSwift {
         shared = AvalancheSwift()
     }
     
-    public class func initialize(xPub: String, delegate: AvalancheInitDelegate) {
+    public class func initialize(xPub: String) {
         let xBatch = AvaxAPI.getXBatch(xPub, 0, isPubKey: true)
         let xIntBatch = AvaxAPI.getXBatch(xPub, 1, isPubKey: true)
         
