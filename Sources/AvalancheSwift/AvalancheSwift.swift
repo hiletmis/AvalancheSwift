@@ -1,5 +1,4 @@
 import Foundation
-import BigInteger
 
 public final class AvalancheSwift {
 
@@ -80,10 +79,10 @@ public final class AvalancheSwift {
         AvaxAPI.importAvax(from: from.getChain(), to: to.getChain(), completion: completion)
     }
 
-    public func exportToAvaxC(from: String, to: String, amount: String, web3Address: String, nonce: BigUInt, completion: @escaping (_ transaction: BaseExportTxEvm?)->()) {
+    public func exportToAvaxC(from: String, to: String, amount: String, web3Address: String, nonce: String, completion: @escaping (_ transaction: BaseExportTxEvm?)->()) {
         guard let from = chainIdentifier.init(rawValue: from) else { return }
         guard let to = chainIdentifier.init(rawValue: to) else { return }
-        
+                
         AvaxAPI.exportToAvaxC(from: from.getChain(), to: to.getChain(), amount: amount, web3Address: web3Address, nonce: nonce, completion: completion)
     }
     

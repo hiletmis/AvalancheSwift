@@ -283,7 +283,8 @@ public final class AvaxAPI {
         }
     }
     
-    class func exportToAvaxC(from: Chain, to: Chain, amount: String, web3Address: String, nonce: BigUInt, completion: @escaping (_ transaction: BaseExportTxEvm?)->()) {
+    class func exportToAvaxC(from: Chain, to: Chain, amount: String, web3Address: String, nonce: String, completion: @escaping (_ transaction: BaseExportTxEvm?)->()) {
+        guard let nonce = BigUInt(nonce, radix: 16) else { return }
         
         let fee: BigUInt = 350937
         let amount = Util.double2BigUInt(amount, 9)
