@@ -76,6 +76,11 @@ final class AvalancheSwiftTests: XCTestCase, AvalancheInitDelegate {
          
     }
     
+    func testBase58Decode() {
+        XCTAssertEqual(Util.decodeBase58Check(data: "2q9e4r6Mu3U68nU1fYjgbR6JvwrRx36CohpAX5UQxse55x1Q5"),
+                       [4, 39, 212, 178, 42, 42, 120, 188, 221, 212, 86, 116, 44, 175, 145, 181, 107, 173, 191, 249, 133, 238, 25, 174, 241, 69, 115, 231, 52, 63, 214, 82])
+    }
+    
     func testInit() {        
         AvalancheSwift.initialize(seed: AvalancheSwiftTests.seed)
 

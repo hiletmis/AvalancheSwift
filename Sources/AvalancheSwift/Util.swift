@@ -25,7 +25,7 @@ class Util {
     }
     
     class func encodeBase58Check(data: String) -> String {
-        return Base58Encoder.encode(Web3Crypto.checksum(datas: data.hexToBytes()))
+        return Base58Encoder.encode(Web3Crypto.cb58Checksum(data: data.hexToBytes()))
     }
     
     class func getBlockchainId(id: String) -> String {
