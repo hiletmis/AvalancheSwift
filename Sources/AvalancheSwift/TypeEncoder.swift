@@ -20,7 +20,13 @@ class TypeEncoder {
     }
     
     class func byter(input: BigUInt, len: Int) -> [UInt8] {
-        return input.serialize().bytes
+        var bytes:[UInt8] = input.serialize().bytes
+
+        for _ in 0...(7 - bytes.count) {
+            bytes.insert(0x00, at: 0)
+        }
+        
+        return bytes
     }
      
     class func createOutput(amount: String) -> TransferableOutput? {

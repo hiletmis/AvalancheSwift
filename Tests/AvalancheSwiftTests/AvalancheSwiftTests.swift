@@ -1,4 +1,5 @@
 import XCTest
+import BigInteger
 @testable import AvalancheSwift
 
 final class AvalancheSwiftTests: XCTestCase, AvalancheInitDelegate {
@@ -86,6 +87,10 @@ final class AvalancheSwiftTests: XCTestCase, AvalancheInitDelegate {
         let output = TransferableOutput.init(asset_id: "FvwEAhmxKfeiG8SnEvq42hc6whRyY3EFYAvebMqDNDGCgxN5Z",
                                              output: transferOutput)
         let encoded = TypeEncoder.encodeType(type: [output])
+    }
+    
+    func testBigUIntTo8Byte() {
+        XCTAssertEqual(TypeEncoder.byter(input: BigUInt.init(stringLiteral: "471"), len:8), [0, 0, 0, 0, 0, 0, 1, 215])
     }
     
     func testInit() {        
