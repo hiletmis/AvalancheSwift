@@ -147,9 +147,9 @@ class TypeEncoder {
         encodedType.append(contentsOf: codecId)
         encodedType.append(contentsOf: type.base_tx)
         
-        type.source_chain == nil
+        type.source_chain == []
         ? encodedType.append(contentsOf: pChain)
-        : encodedType.append(contentsOf: type.source_chain!)
+        : encodedType.append(contentsOf: type.source_chain)
 
         encodedType.append(contentsOf: outs)
 

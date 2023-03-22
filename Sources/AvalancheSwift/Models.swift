@@ -263,7 +263,7 @@ public struct StakeTx: Codable {
 // MARK: - Unsigned Import Tx
 public struct UnsignedImportTx: Codable {
     let base_tx: [UInt8]
-    let source_chain: [UInt8]?
+    let source_chain: [UInt8]
     let ins: [TransferableInput]
 }
 
