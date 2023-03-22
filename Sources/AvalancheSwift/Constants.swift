@@ -109,15 +109,15 @@ class Constants {
                                           getUTXOs: "platform.getUTXOs",
                                           issueTx: "platform.issueTx",
                                           evm: "https://api.avax.network/ext/bc/P",
-                                          exportAvaxType: 4,
-                                          importAvaxType: 3)
+                                          exportAvaxType: 18,
+                                          importAvaxType: 17)
     
     public static let chainC = Chain.init(identifier: "C",
                                           blockchainId: .xBlockchain,
                                           getUTXOs: "avax.getUTXOs",
                                           issueTx: "avax.issueTx",
                                           evm: "https://api.avax.network/ext/bc/C/avax",
-                                          exportAvaxType: 4,
-                                          importAvaxType: 3)
+                                          exportAvaxType: 1,
+                                          importAvaxType: 0)
     
 }
