@@ -208,9 +208,9 @@ class TypeEncoder {
         encodedType.append(contentsOf: codecId)
         encodedType.append(contentsOf: type.base_tx)
         
-        type.destination_chain == nil
+        type.destination_chain == []
         ? encodedType.append(contentsOf: pChain)
-        : encodedType.append(contentsOf: type.destination_chain!)
+        : encodedType.append(contentsOf: type.destination_chain)
 
         encodedType.append(contentsOf: outs)
 

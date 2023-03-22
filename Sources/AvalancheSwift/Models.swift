@@ -220,7 +220,7 @@ public struct BaseImportTxEvm: Codable {
 // MARK: - Unsigned Export Tx
 public struct UnsignedExportTx: Codable {
     let base_tx: [UInt8]
-    let destination_chain: [UInt8]?
+    let destination_chain: [UInt8]
     let outs: [TransferableOutput]
 }
 
