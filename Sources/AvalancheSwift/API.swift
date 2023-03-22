@@ -365,7 +365,7 @@ public final class AvaxAPI {
                                                            destination_chain: Util.decodeBase58Check(data: destination_chain),
                                                            outs: [transferDest])
                     
-                    let result = TypeEncoder.encoder(type: unsignedTx)
+                    let result = TypeEncoder.encodeType(type: unsignedTx)
                     completion(result, getPkeyInd(utxos: sorted))
 
                 }
