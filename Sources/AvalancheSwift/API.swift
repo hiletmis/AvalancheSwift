@@ -256,7 +256,7 @@ public final class AvaxAPI {
                                                  amount:availableBalance - fee,
                                                  locktime: 0,
                                                  threshold: 1,
-                                                 addresses: [to.identifier + "-" + importTo])
+                                                 addresses: [importTo])
                 
                 let transferDest = TransferableOutput.init(asset_id: assetId.avaxAssetId.rawValue, output: output)
                 let transferInput = sorted
@@ -277,7 +277,7 @@ public final class AvaxAPI {
                                                            source_chain: Util.decodeBase58Check(data: source_chain),
                                                            ins: transferInput)
                     
-                    let result = TypeEncoder.encoder(type: tx)
+                    let result = TypeEncoder.encoder(type: unsignedTx)
                     completion(result, getPkeyInd(utxos: sorted))
 
                 }
