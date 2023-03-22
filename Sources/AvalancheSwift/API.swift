@@ -70,10 +70,10 @@ public final class AvaxAPI {
     class func getXBatch(_ xPub: String, _ accountIndex: Int = 0, isPubKey: Bool = true) -> [String] {
         var addresses:[String] = []
 
-        let xAccountDepth = Web3Crypto.deriveExtPrivKey(xPrv: xPub, depth: 3, index: accountIndex)
+        let xAccountDepth = Web3Crypto.derivePublicKey(xPub: xPub, index: accountIndex)
         
         for i in 0..<50 {
-            let xAddressDepth = Web3Crypto.deriveExtPrivKey(xPrv: Base58Encoder.encode(xAccountDepth!), depth: 4, index: i)
+            let xAddressDepth = Web3Crypto.deriveExtKey(xPrv: Base58Encoder.encode(xAccountDepth!), index: i)
             let privKey:[UInt8] = Array(xAddressDepth![46...77])
 
             let ripesha = Web3Crypto.secp256k1Address(privKey: privKey)
@@ -90,10 +90,10 @@ public final class AvaxAPI {
         var addresses:[String] = []
                 
         if let xPrv = CryptoUtil.shared.web3xPrv(seed: seed, path: "m/44\'/9000\'/0\'") {
-            let xAccountDepth = Web3Crypto.deriveExtPrivKey(xPrv: xPrv, depth: 3, index: accountIndex)
+            let xAccountDepth = Web3Crypto.deriveExtKey(xPrv: xPrv, index: accountIndex)
             
             for i in 0..<50 {
-                let xAddressDepth = Web3Crypto.deriveExtPrivKey(xPrv: Base58Encoder.encode(xAccountDepth!), depth: 4, index: i)
+                let xAddressDepth = Web3Crypto.deriveExtKey(xPrv: Base58Encoder.encode(xAccountDepth!), index: i)
                 let privKey:[UInt8] = Array(xAddressDepth![46...77])
 
                 let ripesha = Web3Crypto.secp256k1Address(privKey: privKey)

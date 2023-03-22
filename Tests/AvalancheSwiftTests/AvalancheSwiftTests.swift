@@ -81,7 +81,7 @@ final class AvalancheSwiftTests: XCTestCase, AvalancheInitDelegate {
 
         let expectation = self.expectation(description: "Get Validators")
 
-        AvalancheSwift.shared.exportAvax(from: "X", to: "P", amount: "0.01") { transaction in
+        AvalancheSwift.shared.exportAvax(from: "X", to: "P", amount: "0.01") { transaction, arg  in
             expectation.fulfill()
             XCTAssertTrue(true)
         }

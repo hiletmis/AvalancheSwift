@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/hiletmis/EnnoUtil.git",
       "state" : {
-        "revision" : "a9d866d78b65ff752abcd19e56671242538e82f5",
-        "version" : "1.0.9"
+        "branch" : "main",
+        "revision" : "ceec20038841a0602c12ef694a108d38cf64d1ae"
       }
     }
   ],
