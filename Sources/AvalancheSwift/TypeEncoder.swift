@@ -40,7 +40,7 @@ class TypeEncoder {
         }
         
         for item in type {
-            let assetId = Base58Encoder.decode(item.asset_id)
+            let assetId = Util.decodeBase58Check(data: item.asset_id)
             let output = encodeType(type: item.output)
             encodedType.append(contentsOf: assetId)
             encodedType.append(contentsOf: output)
