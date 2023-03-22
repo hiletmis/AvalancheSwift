@@ -18,6 +18,10 @@ public final class AvaxAPI {
      
     class func checkState(delegate: AvalancheInitDelegate) {
         
+        Constants.chainX.clearBalance()
+        Constants.chainP.clearBalance()
+        Constants.chainC.clearBalance()
+        
         var xRequestBatch: [String] = []
         var pRequestBatch: [String] = []
         var xIntRequestBatch: [String] = []
