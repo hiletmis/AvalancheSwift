@@ -176,7 +176,7 @@ public final class AvaxAPI {
                                                             rewardsOwner: secpOutputOwner,
                                                             shares: info.shares)
                     
-                    let tx = TypeEncoder.encoder(type: delegateTx)
+                    let tx = TypeEncoder.encodeType(type: delegateTx)
                     completion(tx, getPkeyInd(utxos: sorted))
                 }
             } else {
@@ -217,9 +217,7 @@ public final class AvaxAPI {
                                                     importedInputs: [evmOutput],
                                                     outs: sorted)
                 
-                if let tx = TypeEncoder.encoder(type: importTx) {
-                    completion(tx, getPkeyInd(utxos: sorted))
-                }
+                completion(TypeEncoder.encodeType(type: importTx), getPkeyInd(utxos: sorted))
                 
             } else {
                 completion(nil, [])
@@ -272,16 +270,14 @@ public final class AvaxAPI {
                                              inputs: inputs,
                                              memo: "EnnoWallet Avalanche Import")
                 
-                if let tx = TypeEncoder.encoder(type: export) {
-                    let unsignedTx = UnsignedImportTx.init(base_tx: tx,
-                                                           source_chain: Util.decodeBase58Check(data: source_chain),
-                                                           ins: transferInput)
-                    
-                    
-                    let result = TypeEncoder.encodeType(type: unsignedTx)
-                    completion(result, getPkeyInd(utxos: sorted))
-
-                }
+                let unsignedTx = UnsignedImportTx.init(base_tx: TypeEncoder.encodeType(type: export),
+                                                       source_chain: Util.decodeBase58Check(data: source_chain),
+                                                       ins: transferInput)
+                
+                
+                let result = TypeEncoder.encodeType(type: unsignedTx)
+                
+                completion(result, getPkeyInd(utxos: sorted))
             } else {
                 completion(nil, [])
                 print("amountError")
@@ -316,8 +312,7 @@ public final class AvaxAPI {
                                           destinationChain: to.blockchainId.rawValue,
                                           inputs: [evmInput], exportedOutputs: [transferOutput])
         
-        let result = TypeEncoder.encoder(type: export)
-        completion(result, [0])
+        completion(TypeEncoder.encodeType(type: export), [0])
         
     }
     
@@ -361,15 +356,12 @@ public final class AvaxAPI {
                                          blockchain_id: from.blockchainId.rawValue,
                                          outputs: outputs, inputs: inputs, memo: "EnnoWallet Avalanche Export")
                 
-                if let tx = TypeEncoder.encoder(type: export) {
-                    let unsignedTx = UnsignedExportTx.init(base_tx: tx,
-                                                           destination_chain: Util.decodeBase58Check(data: destination_chain),
-                                                           outs: [transferDest])
-                    
-                    let result = TypeEncoder.encodeType(type: unsignedTx)
-                    completion(result, getPkeyInd(utxos: sorted))
+                let unsignedTx = UnsignedExportTx.init(base_tx: TypeEncoder.encodeType(type: export),
+                                                       destination_chain: Util.decodeBase58Check(data: destination_chain),
+                                                       outs: [transferDest])
+                
+                completion(TypeEncoder.encodeType(type: unsignedTx), getPkeyInd(utxos: sorted))
 
-                }
             } else {
                 completion(nil, [])
                 print("amountError")
