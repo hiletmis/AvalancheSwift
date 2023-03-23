@@ -8,6 +8,15 @@
 import BigInteger
 import Foundation
 
+public struct DelegatorInfo {
+    public var nodeId: String?
+    public let startTime: Int64
+    public let endTime: Int64
+    public let weight: String
+    public let rewardAddress: String
+    public var shares: Int32?
+}
+
 // MARK: - AddressBatch
 struct AddressBatch: Codable {
     let walletAddresses: [String]
@@ -251,15 +260,6 @@ public struct BaseTx: Codable {
      public let rewardsOwner: SECP256K1OutputOwners
      public let shares: Int32?
  }
-
-public struct delegatorInfo {
-    var nodeId: String?
-    var startTime: Int64
-    var endTime: Int64
-    var weight: String
-    var rewardAddress: String
-    var shares: Int32?
-}
 
 // MARK: - Stake
 public struct StakeTx: Codable {
