@@ -106,6 +106,18 @@ final class AvalancheSwiftTests: XCTestCase, AvalancheInitDelegate {
 
     }
     
+    func testGetAtomicTx() {
+        let expectation = self.expectation(description: "testGetAtomicTx")
+
+        AvalancheSwift.initialize(seed: AvalancheSwiftTests.seed)
+        AvalancheSwift.shared.getAtomicTx(chain: "X", id: "U5a7r8VAqYmy7uzkLjWgA5HGA8jduLZvaZPG6hE7JmsLuE5ge") { txId, tx in
+            expectation.fulfill()
+            print(txId, tx)
+        }
+        waitForExpectations(timeout: 25, handler: nil)
+
+    }
+    
     func testBalance() {
         let expectation = self.expectation(description: "Check Balance")
 

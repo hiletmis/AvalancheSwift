@@ -84,5 +84,10 @@ public final class AvalancheSwift {
         AvaxAPI.getValidators(completion: completion)
     }
     
+    public func getAtomicTx(chain: String, id: String, completion: @escaping (_ txId: String?, _ tx: String?)->()) {
+        guard let chain = chainIdentifier.init(rawValue: chain) else { return }
+        AvaxAPI.getAtomicTx(chain: chain.getChain(), id: id, completion: completion)
+    }
+    
 }
 

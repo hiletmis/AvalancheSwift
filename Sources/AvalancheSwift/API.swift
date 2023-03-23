@@ -371,6 +371,17 @@ public final class AvaxAPI {
         }
     }
     
+    class func getAtomicTx(chain: Chain, id: String, completion: @escaping (_ txId: String?, _ tx: String?)->()) {
+    
+        let params = ParamsAtomicTx.init(txID: id, encoding: "hex")
+        let req = AtomicTx.init(jsonrpc: "2.0", id: 1, method: chain.getTx, params: params)
+        
+        RequestService.New(rURL: chain.evm, postData: req.data, sender: IssueTxResult.self) { result, _, _ in
+            guard let result = result else { completion(nil, nil); return}
+            completion(id, result.result.tx)
+        }
+    }
+    
     class func createTx(transaction: [UInt8], chain: Chain, signatures : [Int], isSegwit: Bool,
                         completion: @escaping (_ txId: String?, _ tx: String?)->()) {
         var bsize = transaction.count

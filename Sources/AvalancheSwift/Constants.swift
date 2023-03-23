@@ -49,6 +49,7 @@ public class Chain {
     public let blockchainId : BlockchainId
     public let getUTXOs: String
     public let issueTx: String
+    public let getTx: String
     public let evm: String
     public var latestAddress: String
     public let exportAvaxType: Int32
@@ -57,10 +58,11 @@ public class Chain {
     public var availableBalance: Double
     public var stakedBalance: Double
     
-    init(identifier: String, blockchainId: BlockchainId, getUTXOs: String, issueTx: String, evm: String, exportAvaxType: Int32, importAvaxType: Int32) {
+    init(identifier: String, blockchainId: BlockchainId, getUTXOs: String, getTx: String, issueTx: String, evm: String, exportAvaxType: Int32, importAvaxType: Int32) {
         self.identifier = identifier
         self.blockchainId = blockchainId
         self.getUTXOs = getUTXOs
+        self.getTx = getTx
         self.issueTx = issueTx
         self.evm = evm
         self.exportAvaxType = exportAvaxType
@@ -95,6 +97,7 @@ class Constants {
     public static let chainX = Chain.init(identifier: "X",
                                           blockchainId: .xBlockchain,
                                           getUTXOs: "avm.getUTXOs",
+                                          getTx: "avm.getTx",
                                           issueTx: "avm.issueTx",
                                           evm: "https://api.avax.network/ext/bc/X",
                                           exportAvaxType: 4,
@@ -103,6 +106,7 @@ class Constants {
     public static let chainP = Chain.init(identifier: "P",
                                           blockchainId: .pBlockchain,
                                           getUTXOs: "platform.getUTXOs",
+                                          getTx: "platform.getTx",
                                           issueTx: "platform.issueTx",
                                           evm: "https://api.avax.network/ext/bc/P",
                                           exportAvaxType: 18,
@@ -111,6 +115,7 @@ class Constants {
     public static let chainC = Chain.init(identifier: "C",
                                           blockchainId: .cBlockchain,
                                           getUTXOs: "avax.getUTXOs",
+                                          getTx: "avax.getAtomicTx",
                                           issueTx: "avax.issueTx",
                                           evm: "https://api.avax.network/ext/bc/C/avax",
                                           exportAvaxType: 1,
