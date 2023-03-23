@@ -66,7 +66,7 @@ class Util {
     }
     
     class func hexEncoding(data: [UInt8]) -> String {
-        return "0x" + EnnoUtil.Web3Crypto.checksum(datas: data).toHexString()
+        return "0x" + EnnoUtil.Web3Crypto.cb58Checksum(data: data).toHexString()
     }
     
     class func double2BigUInt(_ val: String, _ decimal: Int) -> BigUInt {
