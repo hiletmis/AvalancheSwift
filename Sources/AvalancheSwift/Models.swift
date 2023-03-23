@@ -8,6 +8,32 @@
 import BigInteger
 import Foundation
 
+public class DelegatorInfo {
+    public var nodeId: String?
+    public let startTime: Int64
+    public let endTime: Int64
+    public let weight: String
+    public let rewardAddress: String
+    public var shares: Int32?
+    
+    init(nodeId: String? = nil, startTime: Int64, endTime: Int64, weight: String, rewardAddress: String, shares: Int32? = nil) {
+        self.nodeId = nodeId
+        self.startTime = startTime
+        self.endTime = endTime
+        self.weight = weight
+        self.rewardAddress = rewardAddress
+        self.shares = shares
+    }
+    
+    public func setNode(nodeId: String? = nil) {
+        self.nodeId = nodeId
+    }
+    
+    public func setShares(shares: Int32? = nil) {
+        self.shares = shares
+    }
+}
+
 // MARK: - AddressBatch
 struct AddressBatch: Codable {
     let walletAddresses: [String]
@@ -251,15 +277,6 @@ public struct BaseTx: Codable {
      public let rewardsOwner: SECP256K1OutputOwners
      public let shares: Int32?
  }
-
-public struct delegatorInfo {
-    var nodeId: String?
-    var startTime: Int64
-    var endTime: Int64
-    var weight: String
-    var rewardAddress: String
-    var shares: Int32?
-}
 
 // MARK: - Stake
 public struct StakeTx: Codable {

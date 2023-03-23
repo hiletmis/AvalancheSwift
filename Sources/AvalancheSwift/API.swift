@@ -40,10 +40,6 @@ public final class AvaxAPI {
                }
            }
            
-           getPlatformStake(addresses: pRequestBatch) {
-               delegate.delegationInitialized(chain: Constants.chainP)
-           }
-           
            getUTXOs(addresses: xRequestBatch, chain: Constants.chainX) { balance in
                Constants.chainX.addBalance(balance: balance, availableBalance: balance)
                delegate.balanceInitialized(chain: Constants.chainX)
@@ -52,6 +48,10 @@ public final class AvaxAPI {
            getUTXOs(addresses: pRequestBatch, chain: Constants.chainP) { balance in
                Constants.chainP.addBalance(balance: balance, availableBalance: balance)
                delegate.balanceInitialized(chain: Constants.chainP)
+           }
+           
+           getPlatformStake(addresses: pRequestBatch) {
+               delegate.delegationInitialized(chain: Constants.chainP)
            }
        }
        
@@ -69,25 +69,6 @@ public final class AvaxAPI {
                }
            }
        }
-
-    }
-    
-    class func getXBatch(_ xPub: String, _ accountIndex: Int = 0, isPubKey: Bool = true) -> [String] {
-        var addresses:[String] = []
-
-        let xAccountDepth = Web3Crypto.derivePublicKey(xPub: xPub, index: accountIndex)
-        
-        for i in 0..<50 {
-            let xAddressDepth = Web3Crypto.deriveExtKey(xPrv: Base58Encoder.encode(xAccountDepth!), index: i)
-            let privKey:[UInt8] = Array(xAddressDepth![46...77])
-
-            let ripesha = Web3Crypto.secp256k1Address(privKey: privKey)
-            let address = Web3Crypto.bech32Address(ripesha: ripesha, hrp: "avax")
-
-            addresses.append(address ?? "N/A")
-
-        }
-        return addresses
 
     }
 
@@ -114,7 +95,6 @@ public final class AvaxAPI {
     class func initVars(_ seed: String) {
         privateKeyWeb3 = EnnoUtil.CryptoUtil.shared.web3xPrv(seed: seed, path: "m/44\'/60\'/0\'")
         privateKeySegwit = EnnoUtil.CryptoUtil.shared.web3xPrv(seed: seed, path: "m/44\'/9000\'/0\'")
-        
         initializeAddresses(addresses: .init(walletAddresses: getXBatch(seed, 0), internalAddresses: getXBatch(seed, 0)))
     }
     
@@ -130,7 +110,7 @@ public final class AvaxAPI {
         Constants.chainP.clearBalance()
     }
     
-    class func delegateAvax(info: delegatorInfo, amount: String, isValidate: Bool = false,
+    class func delegateAvax(info: DelegatorInfo, amount: String, isValidate: Bool = false,
                             completion: @escaping (_ txId: String?, _ tx: String?)->()) {
         
         let typeId:Int32 = isValidate ? 12 : 14

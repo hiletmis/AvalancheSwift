@@ -42,7 +42,7 @@ public final class AvalancheSwift {
         return [Constants.chainX, Constants.chainP, Constants.chainC]
     }
 
-    public func delegateAvax(info: delegatorInfo, amount: String, isValidate: Bool = false,
+    public func delegateAvax(info: DelegatorInfo, amount: String, isValidate: Bool = false,
                              completion: @escaping (_ txId: String?, _ tx: String?)->()) {
         AvaxAPI.delegateAvax(info: info, amount: amount, completion: completion)
     }
