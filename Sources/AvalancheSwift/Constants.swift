@@ -88,9 +88,7 @@ public class Chain {
     func setStakedBalance(stakedBalance: Double) {
         self.stakedBalance = stakedBalance
     }
-    
 }
-
 
 class Constants {
     
