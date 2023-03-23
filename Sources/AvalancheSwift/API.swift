@@ -51,16 +51,13 @@ public final class AvaxAPI {
                getUTXOs(addresses: pRequestBatch, chain: Constants.chainP) { balance in
                    Constants.chainP.addBalance(balance: balance, availableBalance: balance)
                    delegate.balanceInitialized(chain: Constants.chainP)
-               }
-           }
-           
-           if pRequestBatch.count > 0 {
-               DispatchQueue.global(qos: .background).async  {
+                   
                    getPlatformStake(addresses: pRequestBatch) {
                        delegate.delegationInitialized(chain: Constants.chainP)
                    }
                }
-            }
+           }
+
        }
        
        checkChainAddresses(addresses: AddressesIntX, inner: true) { [self] result in

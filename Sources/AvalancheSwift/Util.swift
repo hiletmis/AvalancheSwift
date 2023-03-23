@@ -74,6 +74,10 @@ class Util {
         let parts = sanite.split(separator: ".")
         var bigAmount: BigUInt = 0
         
+        if parts.count == 0 {
+            return .zero
+        }
+        
         if let numberPart = BigUInt.init(parts[0]) {
             bigAmount = numberPart.multiplied(by: BigUInt(10).power(decimal))
         }
