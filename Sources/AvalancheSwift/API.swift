@@ -576,7 +576,7 @@ public final class AvaxAPI {
             let accountIndex = ind < 0 ? 1 : 0
             
             if let xPrvAccount = EnnoUtil.Web3Crypto.deriveExtKey(xPrv: xPrivKey, index: accountIndex),
-               let xPrvWallet = EnnoUtil.Web3Crypto.deriveExtKey(xPrv: xPrvAccount.toHexString(), index: abs(ind)) {
+               let xPrvWallet = EnnoUtil.Web3Crypto.deriveExtKey(xPrv: Base58Encoder.encode(xPrvAccount), index: abs(ind)) {
                 
                 let privKey:[UInt8] = Array(xPrvWallet[46...77])
             
