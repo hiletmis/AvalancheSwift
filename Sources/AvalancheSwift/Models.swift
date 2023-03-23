@@ -16,6 +16,15 @@ public struct DelegatorInfo {
     public let weight: String
     public let rewardAddress: String
     public var shares: Int32?
+    
+    public init(nodeId: String? = nil, startTime: Int64, endTime: Int64, weight: String, rewardAddress: String, shares: Int32? = nil) {
+        self.nodeId = nodeId
+        self.startTime = startTime
+        self.endTime = endTime
+        self.weight = weight
+        self.rewardAddress = rewardAddress
+        self.shares = shares
+    }
 }
 
 // MARK: - AddressBatch
