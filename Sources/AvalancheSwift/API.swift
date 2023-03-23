@@ -100,7 +100,7 @@ public final class AvaxAPI {
     class func initVars(_ seed: String) {
         privateKeyWeb3 = EnnoUtil.CryptoUtil.shared.web3xPrv(seed: seed, path: "m/44\'/60\'/0\'")
         privateKeySegwit = EnnoUtil.CryptoUtil.shared.web3xPrv(seed: seed, path: "m/44\'/9000\'/0\'")
-        initializeAddresses(addresses: .init(walletAddresses: getXBatch(seed, 0), internalAddresses: getXBatch(seed, 0)))
+        initializeAddresses(addresses: .init(walletAddresses: getXBatch(seed, 0), internalAddresses: getXBatch(seed, 1)))
     }
     
     private class func initializeAddresses(addresses: AddressBatch) {
