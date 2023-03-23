@@ -40,19 +40,27 @@ public final class AvaxAPI {
                }
            }
            
-           getUTXOs(addresses: xRequestBatch, chain: Constants.chainX) { balance in
-               Constants.chainX.addBalance(balance: balance, availableBalance: balance)
-               delegate.balanceInitialized(chain: Constants.chainX)
+           DispatchQueue.global(qos: .background).async  {
+               getUTXOs(addresses: xRequestBatch, chain: Constants.chainX) { balance in
+                   Constants.chainX.addBalance(balance: balance, availableBalance: balance)
+                   delegate.balanceInitialized(chain: Constants.chainX)
+               }
            }
            
-           getUTXOs(addresses: pRequestBatch, chain: Constants.chainP) { balance in
-               Constants.chainP.addBalance(balance: balance, availableBalance: balance)
-               delegate.balanceInitialized(chain: Constants.chainP)
+           DispatchQueue.global(qos: .background).async  {
+               getUTXOs(addresses: pRequestBatch, chain: Constants.chainP) { balance in
+                   Constants.chainP.addBalance(balance: balance, availableBalance: balance)
+                   delegate.balanceInitialized(chain: Constants.chainP)
+               }
            }
            
-           getPlatformStake(addresses: pRequestBatch) {
-               delegate.delegationInitialized(chain: Constants.chainP)
-           }
+           if pRequestBatch.count > 0 {
+               DispatchQueue.global(qos: .background).async  {
+                   getPlatformStake(addresses: pRequestBatch) {
+                       delegate.delegationInitialized(chain: Constants.chainP)
+                   }
+               }
+            }
        }
        
        checkChainAddresses(addresses: AddressesIntX, inner: true) { [self] result in
@@ -521,6 +529,9 @@ public final class AvaxAPI {
                                                              addresses: addresses,
                                                              assetID: nil,
                                                              sourceChain: nil, limit: 100, encoding: "hex", subnetID: nil))
+        if addresses.count == 0 {
+            completion(0)
+        }
         
         RequestService.New(rURL: url, postData: xBalanceRequest.data, sender: UTXOS.self) { result, statusCode, error in
             
