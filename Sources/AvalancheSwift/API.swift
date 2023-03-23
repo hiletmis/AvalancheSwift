@@ -381,8 +381,10 @@ public final class AvaxAPI {
         }
     }
     
-    class func createTx(transaction: [UInt8], chain: Chain, signature : [[UInt8]], completion: @escaping (_ txId: String?, _ tx: String?)->()) {
+    class func createTx(transaction: [UInt8], chain: Chain, signatures : [Int], isSegwit: Bool, completion: @escaping (_ txId: String?, _ tx: String?)->()) {
         var bsize = transaction.count
+        
+        let signature = sign(buffer: Data(transaction), sigs: signatures, isSegwit: isSegwit)
         
         let crdlen = TypeEncoder.byter(input: Int32(signature.count), len: 4)
         bsize += crdlen.count
@@ -565,6 +567,7 @@ public final class AvaxAPI {
     class func sign(buffer: Data, sigs: [Int], isSegwit: Bool = true) -> [[UInt8]] {
         
         var result:[[UInt8]] = []
+        
         guard let xPrivKey = !isSegwit ? privateKeyWeb3 : privateKeySegwit else { return [[]]}
         
         for ind in sigs {

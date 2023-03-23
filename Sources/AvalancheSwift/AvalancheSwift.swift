@@ -80,9 +80,10 @@ public final class AvalancheSwift {
     
     public func createTx(transaction: [UInt8],
                          chain: Chain,
-                         signature : [[UInt8]],
+                         signatures : [Int],
+                         isSegwit: Bool,
                          completion: @escaping (_ txId: String?, _ tx: String?)->()) {
-        AvaxAPI.createTx(transaction: transaction, chain: chain, signature: signature, completion: completion)
+        AvaxAPI.createTx(transaction: transaction, chain: chain, signatures: signatures, isSegwit: isSegwit, completion: completion)
     }
     
 }
