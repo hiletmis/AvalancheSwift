@@ -10,240 +10,240 @@ import Foundation
 
 // MARK: - AtomicTx
 public struct AtomicTx: Codable {
-    let jsonrpc: String
-    let id: Int
-    let method: String
-    let params: ParamsAtomicTx
+    public let jsonrpc: String
+    public let id: Int
+    public let method: String
+    public let params: ParamsAtomicTx
 }
 
 // MARK: - Params
 public struct ParamsAtomicTx: Codable {
-    let txID, encoding: String
+    public let txID, encoding: String
 }
 
 // MARK: - IssueTxResult
 public struct IssueTxResult: Codable {
-    let jsonrpc: String
-    let id: Int
-    let result: ResultTx
+    public let jsonrpc: String
+    public let id: Int
+    public let result: ResultTx
 }
 
 // MARK: - Result
 public struct ResultTx: Codable {
-    let txID: String?
-    let tx: String?
+    public let txID: String?
+    public let tx: String?
 }
 
 // MARK: - IssueTx
 public struct IssueTx: Codable {
-    let jsonrpc: String
-    let id: Int
-    let method: String
-    let params: ParamsTx
+    public let jsonrpc: String
+    public let id: Int
+    public let method: String
+    public let params: ParamsTx
 }
 
 // MARK: - Params
 public struct ParamsTx: Codable {
-    let tx, encoding: String
+    public let tx, encoding: String
 }
 
 
 // MARK: - NFT
 public struct NFTMarket: Codable {
     var name: String
-    let address, token, symbol: String
-    let id: Int
+    public let address, token, symbol: String
+    public let id: Int
     var list: Bool
-    let iconURL: String
+    public let iconURL: String
     var tokenUri: String
 }
 
 // MARK: - RPCModel
 public struct RPCModel: Codable {
-    let jsonrpc, method: String
-    let params: [String]
-    let id: Int
+    public let jsonrpc, method: String
+    public let params: [String]
+    public let id: Int
 }
 
 // MARK: - PVMRPCModel
 public struct PVMRPCModel: Codable {
-    let jsonrpc: String
-    let id: Int
-    let method: String
-    let params: Params?
+    public let jsonrpc: String
+    public let id: Int
+    public let method: String
+    public let params: Params?
 }
 
 // MARK: - Params
 public struct Params: Codable {
-    let address: String?
-    let addresses: [String]?
-    let assetID: String?
-    let sourceChain: String?
-    let limit: Int?
-    let encoding: String?
-    let subnetID: String?
+    public let address: String?
+    public let addresses: [String]?
+    public let assetID: String?
+    public let sourceChain: String?
+    public let limit: Int?
+    public let encoding: String?
+    public let subnetID: String?
 }
 
 // MARK: - PChainBalance
 public struct PChainBalance: Codable {
-    let jsonrpc: String
-    let result: Result
-    let id: Int
+    public let jsonrpc: String
+    public let result: Result
+    public let id: Int
 }
 
 // MARK: - Result
 public struct Result: Codable {
-    let balance: String
-    let unlocked, lockedStakeable, lockedNotStakeable: String?
+    public let balance: String
+    public let unlocked, lockedStakeable, lockedNotStakeable: String?
 }
 
 // MARK: - AddressChains
 public struct AddressChains: Codable {
-    let addressChains: [String: [String]]
+    public let addressChains: [String: [String]]
 }
 
 // MARK: - UTXOS
 public struct UTXOS: Codable {
-    let jsonrpc: String
-    let result: UTXOResult
-    let id: Int
+    public let jsonrpc: String
+    public let result: UTXOResult
+    public let id: Int
 }
 
 // MARK: - Result
 public struct UTXOResult: Codable {
-    let numFetched: String
-    let utxos: [String]
-    let endIndex: EndIndex
-    let encoding: String
+    public let numFetched: String
+    public let utxos: [String]
+    public let endIndex: EndIndex
+    public let encoding: String
 }
 
 // MARK: - EndIndex
 public struct EndIndex: Codable {
-    let address, utxo: String
+    public let address, utxo: String
 }
 
 public struct AddressBalances: Codable {
-    let chain: String
-    let balance: Double
+    public let chain: String
+    public let balance: Double
 }
 
 public struct SECP256K1: Codable {
-    let typeID: String
-    let amount: String
-    let locktime: String
-    let threshold: String
+    public let typeID: String
+    public let amount: String
+    public let locktime: String
+    public let threshold: String
 }
 
 public struct UTXOOutput: Codable {
-    let codecID: String
-    let txID: String
-    let uTXOIndex: String
-    let assetId: String
-    let output: SECP256K1
+    public let codecID: String
+    public let txID: String
+    public let uTXOIndex: String
+    public let assetId: String
+    public let output: SECP256K1
 }
 
 // MARK: - GetStaked
 public struct GetStaked: Codable {
-    let jsonrpc: String
-    let result: ResultStake
-    let id: Int
+    public let jsonrpc: String
+    public let result: ResultStake
+    public let id: Int
 }
 
 // MARK: - Result
 public struct ResultStake: Codable {
-    let staked: String
-    let stakedOutputs: [String]
-    let encoding: String
+    public let staked: String
+    public let stakedOutputs: [String]
+    public let encoding: String
 }
 
 // MARK: - TransferableOutput {
 public struct TransferableOutput: Codable {
-    let asset_id: String
-    let output: TransferOutput
+    public let asset_id: String
+    public let output: TransferOutput
 }
 
 // MARK: - TransferOutput
 public struct TransferOutput: Codable {
-    let type_id: Int32
-    let amount: BigUInt
-    let locktime: BigUInt
-    let threshold: Int32
-    let addresses: [String]
+    public let type_id: Int32
+    public let amount: BigUInt
+    public let locktime: BigUInt
+    public let threshold: Int32
+    public let addresses: [String]
 }
 // MARK: - SECP256K1OutputOwners
 public struct SECP256K1OutputOwners: Codable {
-    let type_id: Int32
-    let locktime: BigUInt
-    let threshold: Int32
-    let addresses: [String]
+    public let type_id: Int32
+    public let locktime: BigUInt
+    public let threshold: Int32
+    public let addresses: [String]
 }
 
 // MARK: - TransferableInput
 public struct TransferableInput: Codable {
-    let tx_id: String
-    let utxo_index: Int32
-    let asset_id: String
-    let input: TransferInput
+    public let tx_id: String
+    public let utxo_index: Int32
+    public let asset_id: String
+    public let input: TransferInput
 }
 
 // MARK: - TransferInput
 public struct TransferInput: Codable {
-    let type_id: Int32
-    let amount: BigUInt
-    let addresses: [Int]
-    let locked: BigUInt
-    let address_indices: [Int32]
+    public let type_id: Int32
+    public let amount: BigUInt
+    public let addresses: [Int]
+    public let locked: BigUInt
+    public let address_indices: [Int32]
 }
 
 
 // MARK: - ExportAvax-C
 public struct BaseExportTxEvm: Codable {
-    let typeID: Int32
-    let networkID: Int32
-    let blockchainID: String
-    let destinationChain: String
-    let inputs: [EVMInput]
-    let exportedOutputs: [TransferableOutput]
+    public let typeID: Int32
+    public let networkID: Int32
+    public let blockchainID: String
+    public let destinationChain: String
+    public let inputs: [EVMInput]
+    public let exportedOutputs: [TransferableOutput]
 }
 
 // MARK: - ImportAvax-C
 public struct BaseImportTxEvm: Codable {
-    let typeID: Int32
-    let networkID: Int32
-    let blockchainID: String
-    let sourceChain: String
-    let importedInputs: [EVMOutput]
-    let outs: [TransferableInput]
+    public let typeID: Int32
+    public let networkID: Int32
+    public let blockchainID: String
+    public let sourceChain: String
+    public let importedInputs: [EVMOutput]
+    public let outs: [TransferableInput]
 }
 
 
 // MARK: - Unsigned Export Tx
 public struct UnsignedExportTx: Codable {
-    let base_tx: [UInt8]
-    let destination_chain: [UInt8]
-    let outs: [TransferableOutput]
+    public let base_tx: [UInt8]
+    public let destination_chain: [UInt8]
+    public let outs: [TransferableOutput]
 }
 
 // MARK: - ExportAvax
 public struct BaseTx: Codable {
-    let type_id: Int32
-    let network_id: Int32
-    let blockchain_id: String
-    let outputs: [TransferableOutput]
-    let inputs: [TransferableInput]
-    let memo: String
+    public let type_id: Int32
+    public let network_id: Int32
+    public let blockchain_id: String
+    public let outputs: [TransferableOutput]
+    public let inputs: [TransferableInput]
+    public let memo: String
 }
 
  // MARK: - UnsignedDelegator
  public struct UnsignedDelegator: Codable {
-     let baseTx: BaseTx
-     let nodeId: String
-     let startTime: BigUInt
-     let endTime: BigUInt
-     let weight: BigUInt
-     let lockedOuts: [TransferableOutput]
-     let rewardsOwner: SECP256K1OutputOwners
-     let shares: Int32?
+     public let baseTx: BaseTx
+     public let nodeId: String
+     public let startTime: BigUInt
+     public let endTime: BigUInt
+     public let weight: BigUInt
+     public let lockedOuts: [TransferableOutput]
+     public let rewardsOwner: SECP256K1OutputOwners
+     public let shares: Int32?
  }
 
 public struct delegatorInfo {
@@ -257,69 +257,64 @@ public struct delegatorInfo {
 
 // MARK: - Stake
 public struct StakeTx: Codable {
-    let lockedOuts: [TransferableOutput]
+    public let lockedOuts: [TransferableOutput]
 }
 
 // MARK: - Unsigned Import Tx
 public struct UnsignedImportTx: Codable {
-    let base_tx: [UInt8]
-    let source_chain: [UInt8]
-    let ins: [TransferableInput]
+    public let base_tx: [UInt8]
+    public let source_chain: [UInt8]
+    public let ins: [TransferableInput]
 }
 
-   
    // MARK: - EVM Input
    public struct EVMInput: Codable {
-       let address: String
-       let amount: BigUInt
-       let asset_id: String
-       let nonce: BigUInt
+       public let address: String
+       public let amount: BigUInt
+       public let asset_id: String
+       public let nonce: BigUInt
    }
-
    
    // MARK: - EVM Output
    public struct EVMOutput: Codable {
-       let address: String
-       let amount: BigUInt
-       let asset_id: String
+       public let address: String
+       public let amount: BigUInt
+       public let asset_id: String
    }
     
-
-
-
 // MARK: - UTXOS
 public struct ValidatorsModel: Codable {
-    let jsonrpc: String
-    let result: Validators
-    let id: Int
+    public let jsonrpc: String
+    public let result: Validators
+    public let id: Int
 }
 
 // MARK: - Validators
 public struct Validators: Codable {
-    let validators: [Validator]
+    public let validators: [Validator]
 }
 
 // MARK: - Validator
 public struct Validator: Codable {
-    let txID, startTime, endTime, stakeAmount: String
-    let nodeID: String
-    let rewardOwner: RewardOwner
-    let potentialReward, delegationFee, uptime: String
-    let connected: Bool
-    let delegators: [Delegator]?
+    public let txID, startTime, endTime, stakeAmount: String
+    public let nodeID: String
+    public let rewardOwner: RewardOwner
+    public let potentialReward, delegationFee, uptime: String
+    public let connected: Bool
+    public let delegators: [Delegator]?
 }
 
 // MARK: - Delegator
 public struct Delegator: Codable {
-    let txID, startTime, endTime, stakeAmount: String
-    let nodeID: String
-    let rewardOwner: RewardOwner
-    let potentialReward: String
+    public let txID, startTime, endTime, stakeAmount: String
+    public let nodeID: String
+    public let rewardOwner: RewardOwner
+    public let potentialReward: String
 }
 
 // MARK: - RewardOwner
 public struct RewardOwner: Codable {
-    let locktime, threshold: String
-    let addresses: [String]
+    public let locktime, threshold: String
+    public let addresses: [String]
 }
 
