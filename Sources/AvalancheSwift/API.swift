@@ -519,6 +519,11 @@ public final class AvaxAPI {
     }
 
     class func getUTXOs(addresses: [String], chain: Chain, completion: @escaping (_ balance: Double) -> ()) {
+        guard addresses.count != 0 else {
+            completion(0)
+            return
+        }
+        
         let function = chain.getUTXOs
         let url = chain.evm
         
@@ -529,9 +534,6 @@ public final class AvaxAPI {
                                                              addresses: addresses,
                                                              assetID: nil,
                                                              sourceChain: nil, limit: 100, encoding: "hex", subnetID: nil))
-        if addresses.count == 0 {
-            completion(0)
-        }
         
         RequestService.New(rURL: url, postData: xBalanceRequest.data, sender: UTXOS.self) { result, statusCode, error in
             
