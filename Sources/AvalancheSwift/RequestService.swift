@@ -51,18 +51,18 @@ class RequestService: NSObject {
 
                 if let httpResponse = response as? HTTPURLResponse {
                     if error != nil {
-                        completion(nil, 555, error)
+                        completion(nil, 555, error as? Error)
                     } else if data != nil {
                         
                         guard let dataResponse = data, error == nil else {
-                            completion(nil, httpResponse.statusCode, error)
+                            completion(nil, httpResponse.statusCode, error as? Error)
                             return
                         }
                         
                         do{
                             completion(try JSONDecoder().decode(T.self, from: dataResponse), httpResponse.statusCode, nil)
                         } catch let parsingError {
-                            completion(nil, httpResponse.statusCode, parsingError)
+                            completion(nil, httpResponse.statusCode, parsingError as? Error)
                         }
                     }
                 }
