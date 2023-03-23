@@ -62,6 +62,9 @@ class RequestService: NSObject {
                         do{
                             completion(try JSONDecoder().decode(T.self, from: dataResponse), httpResponse.statusCode, nil)
                         } catch let parsingError {
+                            if let jsonResponse = try? (JSONSerialization.jsonObject(with: dataResponse) as? Dictionary<String, AnyObject>) {
+                                print(jsonResponse)
+                            }
                             completion(nil, httpResponse.statusCode, parsingError)
                         }
                     }
