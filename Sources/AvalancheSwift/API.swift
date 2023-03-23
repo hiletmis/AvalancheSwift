@@ -130,7 +130,8 @@ public final class AvaxAPI {
         Constants.chainP.clearBalance()
     }
     
-    class func delegateAvax(info: delegatorInfo, amount: String, isValidate: Bool = false, completion: @escaping (_ transaction: [UInt8]?, _ signatureIndexes: [Int])->()) {
+    class func delegateAvax(info: delegatorInfo, amount: String, isValidate: Bool = false,
+                            completion: @escaping (_ txId: String?, _ tx: String?)->()) {
         
         let typeId:Int32 = isValidate ? 12 : 14
         
@@ -188,16 +189,19 @@ public final class AvaxAPI {
                                                             rewardsOwner: secpOutputOwner,
                                                             shares: info.shares)
                     
-                    let tx = TypeEncoder.encodeType(type: delegateTx)
-                    completion(tx, getPkeyInd(utxos: sorted))
+                    createTx(transaction: TypeEncoder.encodeType(type: delegateTx),
+                             chain: Constants.chainP,
+                             signatures: getPkeyInd(utxos: sorted),
+                             isSegwit: true, completion: completion)
                 }
             } else {
-                completion(nil, [])
+                completion(nil, nil)
             }
         }
     }
     
-    class func importAvaxC(from: Chain, to: Chain, web3Address: String, completion: @escaping (_ transaction: [UInt8]?, _ signatureIndexes: [Int])->()) {
+    class func importAvaxC(from: Chain, to: Chain, web3Address: String,
+                           completion: @escaping (_ txId: String?, _ tx: String?)->()) {
         
         let addresses = AddressesWallet.map({to.identifier + "-" + $0})
         let blockchainId = to.blockchainId.rawValue
@@ -214,7 +218,7 @@ public final class AvaxAPI {
                 let sorted = Util.sortLexi(utxos:utxos, amount: 0, sortOnly: true)
                 
                 if availableBalance < fee {
-                    completion(nil, [])
+                    completion(nil, nil)
                     return
                 }
                 
@@ -229,15 +233,19 @@ public final class AvaxAPI {
                                                     importedInputs: [evmOutput],
                                                     outs: sorted)
                 
-                completion(TypeEncoder.encodeType(type: importTx), getPkeyInd(utxos: sorted))
+                createTx(transaction: TypeEncoder.encodeType(type: importTx),
+                         chain: to,
+                         signatures: getPkeyInd(utxos: sorted),
+                         isSegwit: true, completion: completion)
                 
             } else {
-                completion(nil, [])
+                completion(nil, nil)
             }
         }
     }
     
-    class func importAvax(from: Chain, to: Chain, completion: @escaping (_ transaction: [UInt8]?, _ signatureIndexes: [Int])->()) {
+    class func importAvax(from: Chain, to: Chain,
+                          completion: @escaping (_ txId: String?, _ tx: String?)->()) {
 
         var addresses = AddressesWallet.map({to.identifier + "-" + $0})
         let blockchainId = to.blockchainId.rawValue
@@ -258,7 +266,7 @@ public final class AvaxAPI {
                 let sorted = Util.sortLexi(utxos:utxos, amount: 0)
                                    
                 if availableBalance < fee {
-                    completion(nil, [])
+                    completion(nil, nil)
                     return
                 }
                 
@@ -285,19 +293,18 @@ public final class AvaxAPI {
                 let unsignedTx = UnsignedImportTx.init(base_tx: TypeEncoder.encodeType(type: export),
                                                        source_chain: Util.decodeBase58Check(data: source_chain),
                                                        ins: transferInput)
-                
-                
-                let result = TypeEncoder.encodeType(type: unsignedTx)
-                
-                completion(result, getPkeyInd(utxos: sorted))
+                                
+                createTx(transaction: TypeEncoder.encodeType(type: unsignedTx),
+                         chain: to, signatures: getPkeyInd(utxos: sorted), isSegwit: true, completion: completion)
             } else {
-                completion(nil, [])
+                completion(nil, nil)
                 print("amountError")
             }
         }
     }
     
-    class func exportToAvaxC(from: Chain, to: Chain, amount: String, web3Address: String, nonce: String, completion: @escaping (_ transaction: [UInt8]?, _ signatureIndexes: [Int])->()) {
+    class func exportToAvaxC(from: Chain, to: Chain, amount: String, web3Address: String, nonce: String,
+                             completion: @escaping (_ txId: String?, _ tx: String?)->()) {
         guard let nonce = BigUInt(nonce, radix: 16) else { return }
         
         let fee: BigUInt = 350937
@@ -323,12 +330,14 @@ public final class AvaxAPI {
                                           blockchainID: from.blockchainId.rawValue,
                                           destinationChain: to.blockchainId.rawValue,
                                           inputs: [evmInput], exportedOutputs: [transferOutput])
-        
-        completion(TypeEncoder.encodeType(type: export), [0])
+                
+        createTx(transaction: TypeEncoder.encodeType(type: export),
+                 chain: to, signatures: [0], isSegwit: false, completion: completion)
         
     }
     
-    class func exportAvax(from: Chain, to: Chain, amount: String, completion: @escaping (_ transaction: [UInt8]?, _ signatureIndexes: [Int])->()) {
+    class func exportAvax(from: Chain, to: Chain, amount: String,
+                          completion: @escaping (_ txId: String?, _ tx: String?)->()) {
  
         let addresses = AddressesWallet.map({from.identifier + "-" + $0})
         guard let exportTo = addresses.first else {return}
@@ -371,17 +380,19 @@ public final class AvaxAPI {
                 let unsignedTx = UnsignedExportTx.init(base_tx: TypeEncoder.encodeType(type: export),
                                                        destination_chain: Util.decodeBase58Check(data: destination_chain),
                                                        outs: [transferDest])
+                                
+                createTx(transaction: TypeEncoder.encodeType(type: unsignedTx),
+                         chain: to, signatures: getPkeyInd(utxos: sorted), isSegwit: true, completion: completion)
                 
-                completion(TypeEncoder.encodeType(type: unsignedTx), getPkeyInd(utxos: sorted))
-
             } else {
-                completion(nil, [])
+                completion(nil, nil)
                 print("amountError")
             }
         }
     }
     
-    class func createTx(transaction: [UInt8], chain: Chain, signatures : [Int], isSegwit: Bool, completion: @escaping (_ txId: String?, _ tx: String?)->()) {
+    class func createTx(transaction: [UInt8], chain: Chain, signatures : [Int], isSegwit: Bool,
+                        completion: @escaping (_ txId: String?, _ tx: String?)->()) {
         var bsize = transaction.count
         
         let signature = sign(buffer: Data(transaction), sigs: signatures, isSegwit: isSegwit)

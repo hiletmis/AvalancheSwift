@@ -39,8 +39,6 @@ enum chainIdentifier: String {
             return Constants.chainP
         case .c:
             return Constants.chainC
-        default:
-            return Constants.chainX
         }
     }
 }

@@ -109,41 +109,6 @@ public final class AvalanchePrivateKey {
         try verifyPrivateKey()
     }
 
-    /**
-     * Initializes a new instance of `EthereumPrivateKey` with the given `hexPrivateKey` hex string.
-     *
-     * `hexPrivateKey` must be either 64 characters long or 66 characters (with the hex prefix 0x).
-     *
-     * The number must be in the secp256k1 range as described in: https://en.bitcoin.it/wiki/Private_key
-     *
-     * So any number between
-     *
-     * 0x0000000000000000000000000000000000000000000000000000000000000001
-     *
-     * and
-     *
-     * 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364140
-     *
-     * is considered to be a valid secp256k1 private key.
-     *
-     * - parameter hexPrivateKey: The private key bytes.
-     *
-     * - parameter ctx: An optional self managed context. If you have specific requirements and
-     *                  your app performs not as fast as you want it to, you can manage the
-     *                  `secp256k1_context` yourself with the public methods
-     *                  `secp256k1_default_ctx_create` and `secp256k1_default_ctx_destroy`.
-     *                  If you do this, we will not be able to free memory automatically and you
-     *                  __have__ to destroy the context yourself once your app is closed or
-     *                  you are sure it will not be used any longer. Only use this optional
-     *                  context management if you know exactly what you are doing and you really
-     *                  need it.
-     *
-     * - throws: EthereumPrivateKey.Error.keyMalformed if the restrictions described above are not met.
-     *           EthereumPrivateKey.Error.internalError if a secp256k1 library call or another internal call fails.
-     *           EthereumPrivateKey.Error.pubKeyGenerationFailed if the public key extraction from the private key fails.
-     */
-
-    
     public func signAvax(message: [UInt8]) throws -> (v: UInt, r: [UInt8], s: [UInt8]) {
         var hash = message
         guard hash.count == 32 else {
