@@ -18,10 +18,6 @@ public final class AvalancheSwift {
         AvalancheSwift.shared = nil
     }
     
-    public func isInitialized() -> Bool {
-        return AvalancheSwift.shared != nil
-    }
-
     public func getChains() -> [Chain] {
         return [Constants.chainX, Constants.chainP, Constants.chainC]
     }
@@ -36,10 +32,6 @@ public final class AvalancheSwift {
 
     public func getCChain() -> Chain {
         return Constants.chainC
-    }
-
-    public func getAddresses() -> [Chain] {
-        return [Constants.chainX, Constants.chainP, Constants.chainC]
     }
 
     public func delegateAvax(info: DelegatorInfo, amount: String, isValidate: Bool = false,
@@ -86,6 +78,10 @@ public final class AvalancheSwift {
     public func createTx(transaction: [UInt8], chain: Chain, signatures : [Int], isSegwit: Bool,
                          completion: @escaping (_ txId: String?, _ tx: String?)->()) {
         AvaxAPI.createTx(transaction: transaction, chain: chain, signatures: signatures, isSegwit: isSegwit, completion: completion)
+    }
+    
+    public func getValidators(completion: @escaping (_ validators: ValidatorsModel?)->()) {
+        AvaxAPI.getValidators(completion: completion)
     }
     
 }
