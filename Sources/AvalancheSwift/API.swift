@@ -332,7 +332,7 @@ public final class AvaxAPI {
                                           inputs: [evmInput], exportedOutputs: [transferOutput])
                 
         createTx(transaction: TypeEncoder.encodeType(type: export),
-                 chain: to, signatures: [0], isSegwit: false, completion: completion)
+                 chain: from, signatures: [0], isSegwit: false, completion: completion)
         
     }
     
@@ -382,7 +382,7 @@ public final class AvaxAPI {
                                                        outs: [transferDest])
                                 
                 createTx(transaction: TypeEncoder.encodeType(type: unsignedTx),
-                         chain: to, signatures: getPkeyInd(utxos: sorted), isSegwit: true, completion: completion)
+                         chain: from, signatures: getPkeyInd(utxos: sorted), isSegwit: true, completion: completion)
                 
             } else {
                 completion(nil, nil)
