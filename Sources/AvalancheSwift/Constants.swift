@@ -17,6 +17,15 @@ public enum BlockchainId: String {
         return Web3Crypto.validateChecksum(datas: Base58Encoder.decode(self.rawValue))
     }
 }
+
+// MARK: - Errors
+
+public enum Error: Swift.Error {
+
+    case internalError
+    case keyMalformed
+    case pubKeyGenerationFailed
+}
  
 enum assetId: String {
     case avaxAssetId = "FvwEAhmxKfeiG8SnEvq42hc6whRyY3EFYAvebMqDNDGCgxN5Z"

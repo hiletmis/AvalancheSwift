@@ -14,7 +14,8 @@ public final class AvaxAPI {
     private static var AddressesWallet:[String] = []
     private static var AddressesIntX:[String] = []
     
-    private static var xPub: String?
+    private static var privateKeySegwit: String?
+    private static var privateKeyWeb3: String?
      
     class func checkState(delegate: AvalancheInitDelegate) {
         
@@ -110,13 +111,20 @@ public final class AvaxAPI {
         return addresses
     }
     
-    class func initializeAddresses(wallet: [String], intX: [String]) {
-        AddressesWallet = wallet
-        AddressesIntX = intX
+    class func initVars(_ seed: String) {
+        privateKeyWeb3 = EnnoUtil.CryptoUtil.shared.web3xPrv(seed: seed, path: "m/44\'/60\'/0\'")
+        privateKeySegwit = EnnoUtil.CryptoUtil.shared.web3xPrv(seed: seed, path: "m/44\'/9000\'/0\'")
         
-        Constants.chainX.setAddress(address: "X-" + (wallet.first ?? ""))
-        Constants.chainP.setAddress(address: "P-" + (wallet.first ?? ""))
-        Constants.chainC.setAddress(address: "C-" + (wallet.first ?? ""))
+        initializeAddresses(addresses: .init(walletAddresses: getXBatch(seed, 0), internalAddresses: getXBatch(seed, 0)))
+    }
+    
+    private class func initializeAddresses(addresses: AddressBatch) {
+        AddressesWallet = addresses.walletAddresses
+        AddressesIntX = addresses.internalAddresses
+        
+        Constants.chainX.setAddress(address: "X-" + (addresses.walletAddresses.first ?? ""))
+        Constants.chainP.setAddress(address: "P-" + (addresses.walletAddresses.first ?? ""))
+        Constants.chainC.setAddress(address: "C-" + (addresses.walletAddresses.first ?? ""))
         
         Constants.chainX.clearBalance()
         Constants.chainP.clearBalance()
@@ -554,35 +562,36 @@ public final class AvaxAPI {
         }
     }
     
-    class func sign(seed: String, buffer: Data, sigs: [Int], isSegwit: Bool = true) -> [[UInt8]] {
+    class func sign(buffer: Data, sigs: [Int], isSegwit: Bool = true) -> [[UInt8]] {
         
         var result:[[UInt8]] = []
-        let coinIndex = !isSegwit ? 60 : 9000
+        guard let xPrivKey = !isSegwit ? privateKeyWeb3 : privateKeySegwit else { return [[]]}
         
         for ind in sigs {
-            var signature : [UInt8] = []
+            var sign : [UInt8] = []
             
             let accountIndex = ind < 0 ? 1 : 0
-
-            if let account = EnnoUtil.CryptoUtil.shared.web3Account(
-                seed: seed,
-                path: "m/44\'/\(coinIndex)\'/0\'/\(accountIndex)/\(abs(ind))") {
+            
+            if let xPrvAccount = EnnoUtil.Web3Crypto.deriveExtKey(xPrv: xPrivKey, index: accountIndex),
+               let xPrvWallet = EnnoUtil.Web3Crypto.deriveExtKey(xPrv: xPrvAccount.toHexString(), index: abs(ind)) {
                 
-                //if let privateKey: EthereumPrivateKey = try? EthereumPrivateKey(privateKey: account.privateKey.hexToBytes()) //{
-                //    let hash = CryptoUtil.shared.sha256(input: buffer.bytes)
-                //    if let signature = try? privateKey.signAvax(message: hash) {
-                //        sig.append(contentsOf: signature.r)
-                //        sig.append(contentsOf: signature.s)
-                //        sig.append(UInt8(signature.v))
-                //    }
-                //}
+                let privKey:[UInt8] = Array(xPrvWallet[46...77])
+                let hash = CryptoUtil.shared.sha256(input: buffer.bytes)
+            
+                if let privateKey: AvalanchePrivateKey = try? AvalanchePrivateKey(privateKey: privKey) {
+                    let hash = CryptoUtil.shared.sha256(input: buffer.bytes)
+                    if let signature = try? privateKey.signAvax(message: hash) {
+                        sign.append(contentsOf: signature.r)
+                        sign.append(contentsOf: signature.s)
+                        sign.append(UInt8(signature.v))
+                    }
+                }
+                result.append(sign)
             }
-            result.append(signature)
         }
         
         return result
     }
-       
     
     class func getPlatformStake(addresses: [String], completion: @escaping ()->()) {
          

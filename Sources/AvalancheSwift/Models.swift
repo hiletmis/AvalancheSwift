@@ -8,6 +8,12 @@
 import BigInteger
 import Foundation
 
+// MARK: - AddressBatch
+struct AddressBatch: Codable {
+    let walletAddresses: [String]
+    let internalAddresses: [String]
+}
+
 // MARK: - AtomicTx
 public struct AtomicTx: Codable {
     public let jsonrpc: String
