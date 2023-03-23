@@ -77,7 +77,7 @@ public final class AvalanchePrivateKey {
      */
     public init(privateKey: [UInt8], ctx: OpaquePointer? = nil) throws {
         guard privateKey.count == 32 else {
-            throw Error.keyMalformed
+            throw KeyError.keyMalformed
         }
         self.rawPrivateKey = privateKey
 
@@ -86,7 +86,7 @@ public final class AvalanchePrivateKey {
             finalCtx = ctx
             self.ctxSelfManaged = true
         } else {
-            let ctx = try secp256k1_default_ctx_create(errorThrowable: Error.internalError)
+            let ctx = try secp256k1_default_ctx_create(errorThrowable: KeyError.internalError)
             finalCtx = ctx
             self.ctxSelfManaged = false
         }
@@ -94,7 +94,7 @@ public final class AvalanchePrivateKey {
 
         // *** Generate public key ***
         guard let pubKey = malloc(MemoryLayout<secp256k1_pubkey>.size)?.assumingMemoryBound(to: secp256k1_pubkey.self) else {
-            throw Error.internalError
+            throw KeyError.internalError
         }
         // Cleanup
         defer {
@@ -102,7 +102,7 @@ public final class AvalanchePrivateKey {
         }
         var secret = privateKey
         if secp256k1_ec_pubkey_create(finalCtx, pubKey, &secret) != 1 {
-            throw Error.pubKeyGenerationFailed
+            throw KeyError.pubKeyGenerationFailed
         }
 
         // Verify private key
@@ -147,10 +147,10 @@ public final class AvalanchePrivateKey {
     public func signAvax(message: [UInt8]) throws -> (v: UInt, r: [UInt8], s: [UInt8]) {
         var hash = message
         guard hash.count == 32 else {
-            throw Error.internalError
+            throw KeyError.internalError
         }
         guard let sig = malloc(MemoryLayout<secp256k1_ecdsa_recoverable_signature>.size)?.assumingMemoryBound(to: secp256k1_ecdsa_recoverable_signature.self) else {
-            throw Error.internalError
+            throw KeyError.internalError
         }
         defer {
             free(sig)
@@ -159,7 +159,7 @@ public final class AvalanchePrivateKey {
         var seckey = rawPrivateKey
 
         guard secp256k1_ecdsa_sign_recoverable(ctx, sig, &hash, &seckey, nil, nil) == 1 else {
-            throw Error.internalError
+            throw KeyError.internalError
         }
 
         var output64 = [UInt8](repeating: 0, count: 64)
@@ -168,7 +168,7 @@ public final class AvalanchePrivateKey {
 
         guard recid == 0 || recid == 1 else {
             // Well I guess this one should never happen but to avoid bigger problems...
-            throw Error.internalError
+            throw KeyError.internalError
         }
 
         return (v: UInt(recid), r: Array(output64[0..<32]), s: Array(output64[32..<64]))
@@ -179,10 +179,10 @@ public final class AvalanchePrivateKey {
     public func sign(message: [UInt8]) throws -> (v: UInt, r: [UInt8], s: [UInt8]) {
         var hash = SHA3(variant: .keccak256).calculate(for: message)
         guard hash.count == 32 else {
-            throw Error.internalError
+            throw KeyError.internalError
         }
         guard let sig = malloc(MemoryLayout<secp256k1_ecdsa_recoverable_signature>.size)?.assumingMemoryBound(to: secp256k1_ecdsa_recoverable_signature.self) else {
-            throw Error.internalError
+            throw KeyError.internalError
         }
         defer {
             free(sig)
@@ -191,7 +191,7 @@ public final class AvalanchePrivateKey {
         var seckey = rawPrivateKey
 
         guard secp256k1_ecdsa_sign_recoverable(ctx, sig, &hash, &seckey, nil, nil) == 1 else {
-            throw Error.internalError
+            throw KeyError.internalError
         }
 
         var output64 = [UInt8](repeating: 0, count: 64)
@@ -200,7 +200,7 @@ public final class AvalanchePrivateKey {
 
         guard recid == 0 || recid == 1 else {
             // Well I guess this one should never happen but to avoid bigger problems...
-            throw Error.internalError
+            throw KeyError.internalError
         }
 
         return (v: UInt(recid), r: Array(output64[0..<32]), s: Array(output64[32..<64]))
@@ -223,13 +223,13 @@ public final class AvalanchePrivateKey {
     private func verifyPrivateKey() throws {
         var secret = rawPrivateKey
         guard secp256k1_ec_seckey_verify(ctx, &secret) == 1 else {
-            throw Error.keyMalformed
+            throw KeyError.keyMalformed
         }
     }
 
     // MARK: - Errors
 
-    public enum Error: Swift.Error {
+    public enum KeyError: Error {
 
         case internalError
         case keyMalformed

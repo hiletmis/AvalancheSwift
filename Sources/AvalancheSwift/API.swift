@@ -564,7 +564,7 @@ public final class AvaxAPI {
         }
     }
     
-    class func sign(buffer: Data, sigs: [Int], isSegwit: Bool = true) -> [[UInt8]] {
+    private class func sign(buffer: Data, sigs: [Int], isSegwit: Bool = true) -> [[UInt8]] {
         
         var result:[[UInt8]] = []
         
@@ -579,7 +579,6 @@ public final class AvaxAPI {
                let xPrvWallet = EnnoUtil.Web3Crypto.deriveExtKey(xPrv: xPrvAccount.toHexString(), index: abs(ind)) {
                 
                 let privKey:[UInt8] = Array(xPrvWallet[46...77])
-                let hash = CryptoUtil.shared.sha256(input: buffer.bytes)
             
                 if let privateKey: AvalanchePrivateKey = try? AvalanchePrivateKey(privateKey: privKey) {
                     let hash = CryptoUtil.shared.sha256(input: buffer.bytes)
