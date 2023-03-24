@@ -17,15 +17,15 @@ class Util {
         let hrp = String(parts[1].prefix(4))
         let addr = String(parts[1])
         
-        return EnnoUtil.Web3Crypto.encodeSegwit(hrp: hrp, addr: addr) ?? []
+        return EnnoUtil.Web3Crypto.shared.encodeSegwit(hrp: hrp, addr: addr) ?? []
     }
     
     class func decodeBase58Check(data: String) -> [UInt8] {
-        return Web3Crypto.validateChecksum(datas: Base58Encoder.decode(data)) ?? []
+        return Web3Crypto.shared.validateChecksum(datas: Base58Encoder.decode(data)) ?? []
     }
     
     class func encodeBase58Check(data: String) -> String {
-        return Base58Encoder.encode(Web3Crypto.cb58Checksum(data: data.hexToBytes()))
+        return Base58Encoder.encode(Web3Crypto.shared.cb58Checksum(data: data.hexToBytes()))
     }
     
     class func getBlockchainId(id: String) -> String {
@@ -66,7 +66,7 @@ class Util {
     }
     
     class func hexEncoding(data: [UInt8]) -> String {
-        return "0x" + EnnoUtil.Web3Crypto.cb58Checksum(data: data).toHexString()
+        return "0x" + EnnoUtil.Web3Crypto.shared.cb58Checksum(data: data).toHexString()
     }
     
     class func double2BigUInt(_ val: String, _ decimal: Int) -> BigUInt {

@@ -81,14 +81,14 @@ public final class AvaxAPI {
         var addresses:[String] = []
                 
         if let xPrv = CryptoUtil.shared.web3xPrv(seed: seed, path: "m/44\'/9000\'/0\'") {
-            let xAccountDepth = Web3Crypto.deriveExtKey(xPrv: xPrv, index: accountIndex)
+            let xAccountDepth = Web3Crypto.shared.deriveExtKey(xPrv: xPrv, index: accountIndex)
             
             for i in 0..<50 {
-                let xAddressDepth = Web3Crypto.deriveExtKey(xPrv: Base58Encoder.encode(xAccountDepth!), index: i)
+                let xAddressDepth = Web3Crypto.shared.deriveExtKey(xPrv: Base58Encoder.encode(xAccountDepth!), index: i)
                 let privKey:[UInt8] = Array(xAddressDepth![46...77])
 
-                let ripesha = Web3Crypto.secp256k1Address(privKey: privKey)
-                let address = Web3Crypto.bech32Address(ripesha: ripesha, hrp: "avax")
+                let ripesha = Web3Crypto.shared.secp256k1Address(privKey: privKey)
+                let address = Web3Crypto.shared.bech32Address(ripesha: ripesha, hrp: "avax")
 
                 addresses.append(address ?? "N/A")
 
@@ -472,7 +472,7 @@ public final class AvaxAPI {
                 if addressLength > 0 {
                     for item in 0...addressLength - 1 {
                         let ripesha = expression.substr(198 + (Int(item) * 40), 40)
-                        let address = Web3Crypto.bech32Address(ripesha: ripesha!.hexToBytes(), hrp: "avax")
+                        let address = Web3Crypto.shared.bech32Address(ripesha: ripesha!.hexToBytes(), hrp: "avax")
                         
                         if let index = AddressesWallet.firstIndex(of: address ?? "N/A") {
                             addressIndex.append(index)
@@ -587,18 +587,16 @@ public final class AvaxAPI {
             
             let accountIndex = ind < 0 ? 1 : 0
             
-            if let xPrvAccount = EnnoUtil.Web3Crypto.deriveExtKey(xPrv: xPrivKey, index: accountIndex),
-               let xPrvWallet = EnnoUtil.Web3Crypto.deriveExtKey(xPrv: Base58Encoder.encode(xPrvAccount), index: abs(ind)) {
+            if let xPrvAccount = EnnoUtil.Web3Crypto.shared.deriveExtKey(xPrv: xPrivKey, index: accountIndex),
+               let xPrvWallet = EnnoUtil.Web3Crypto.shared.deriveExtKey(xPrv: Base58Encoder.encode(xPrvAccount), index: abs(ind)) {
                 
                 let privKey:[UInt8] = Array(xPrvWallet[46...77])
-            
-                if let privateKey: AvalanchePrivateKey = try? AvalanchePrivateKey(privateKey: privKey) {
-                    let hash = CryptoUtil.shared.sha256(input: buffer.bytes)
-                    if let signature = try? privateKey.signAvax(message: hash) {
-                        sign.append(contentsOf: signature.r)
-                        sign.append(contentsOf: signature.s)
-                        sign.append(UInt8(signature.v))
-                    }
+                let hash = CryptoUtil.shared.sha256(input: buffer.bytes)
+                
+                if let signature = try? Web3Crypto.shared.Web3Sign(privateKey: privKey, message: hash, hashSHA3: false) {
+                    sign.append(contentsOf: signature.r)
+                    sign.append(contentsOf: signature.s)
+                    sign.append(UInt8(signature.v))
                 }
                 result.append(sign)
             }

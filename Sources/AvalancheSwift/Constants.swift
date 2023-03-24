@@ -12,18 +12,10 @@ public enum BlockchainId: String {
     case pBlockchain = "11111111111111111111111111111111LpoYY"
     case xBlockchain = "2oYMBNV4eNHyqk2fjjV5nVQLDbtmNJzq5s3qs3Lo6ftnC6FByM"
     case cBlockchain = "2q9e4r6Mu3U68nU1fYjgbR6JvwrRx36CohpAX5UQxse55x1Q5"
-    
-    func decoded() -> [UInt8]? {
-        return Web3Crypto.validateChecksum(datas: Base58Encoder.decode(self.rawValue))
-    }
 }
 
 enum assetId: String {
     case avaxAssetId = "FvwEAhmxKfeiG8SnEvq42hc6whRyY3EFYAvebMqDNDGCgxN5Z"
-    
-    func decoded() -> [UInt8] {
-        Base58Encoder.decode(self.rawValue)
-    }
 }
 
 enum chainIdentifier: String {
