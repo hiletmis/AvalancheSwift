@@ -22,15 +22,15 @@ public final class AvalancheSwift {
         return [Constants.XChain, Constants.PChain, Constants.CChain]
     }
 
-    public func getXChain() -> Chain {
+    public func getXChain() -> AvalancheChain {
         return Constants.chainX
     }
 
-    public func getPChain() -> Chain {
+    public func getPChain() -> AvalancheChain {
         return Constants.chainP
     }
 
-    public func getCChain() -> Chain {
+    public func getCChain() -> AvalancheChain {
         return Constants.chainC
     }
 
