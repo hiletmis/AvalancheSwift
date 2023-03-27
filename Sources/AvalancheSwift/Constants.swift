@@ -50,7 +50,6 @@ public class AvalancheChain {
     
     func addBalance(balance: Double, availableBalance: Double) {
         self.balance += balance
-        self.availableBalance += availableBalance
     }
 
     func setStakedBalance(stakedBalance: Double) {
@@ -59,7 +58,6 @@ public class AvalancheChain {
      
     func clearBalance() {
         self.balance = 0
-        self.availableBalance = 0
     }
     
     func setAddress(address: String) {

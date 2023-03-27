@@ -19,9 +19,9 @@ public final class AvaxAPI {
      
     class func checkState(delegate: AvalancheInitDelegate) {
         
-        Constants.chainX.clearBalance()
-        Constants.chainP.clearBalance()
-        Constants.chainC.clearBalance()
+        Constants.XChain.clearBalance()
+        Constants.PChain.clearBalance()
+        Constants.CChain.clearBalance()
         
         var xRequestBatch: [String] = []
         var pRequestBatch: [String] = []
@@ -42,14 +42,14 @@ public final class AvaxAPI {
            
            DispatchQueue.global(qos: .background).async  {
                getUTXOs(addresses: xRequestBatch, chain: Constants.chainX) { balance in
-                   Constants.chainX.addBalance(balance: balance, availableBalance: balance)
+                   Constants.XChain.addBalance(balance: balance, availableBalance: balance)
                    delegate.balanceInitialized(chain: Constants.chainX)
                }
            }
            
            DispatchQueue.global(qos: .background).async  {
                getUTXOs(addresses: pRequestBatch, chain: Constants.chainP) { balance in
-                   Constants.chainP.addBalance(balance: balance, availableBalance: balance)
+                   Constants.PChain.addBalance(balance: balance, availableBalance: balance)
                    delegate.balanceInitialized(chain: Constants.chainP)
                    
                    getPlatformStake(addresses: pRequestBatch) {
@@ -69,7 +69,7 @@ public final class AvaxAPI {
                }
                  
                getUTXOs(addresses: xIntRequestBatch, chain: Constants.chainX) { balance in
-                   Constants.chainX.addBalance(balance: balance, availableBalance: balance)
+                   Constants.XChain.addBalance(balance: balance, availableBalance: balance)
                    delegate.balanceInitialized(chain: Constants.chainX)
                }
            }
@@ -107,12 +107,12 @@ public final class AvaxAPI {
         AddressesWallet = addresses.walletAddresses
         AddressesIntX = addresses.internalAddresses
         
-        Constants.chainX.setAddress(address: "X-" + (addresses.walletAddresses.first ?? ""))
-        Constants.chainP.setAddress(address: "P-" + (addresses.walletAddresses.first ?? ""))
-        Constants.chainC.setAddress(address: "C-" + (addresses.walletAddresses.first ?? ""))
+        Constants.XChain.setAddress(address: "X-" + (addresses.walletAddresses.first ?? ""))
+        Constants.PChain.setAddress(address: "P-" + (addresses.walletAddresses.first ?? ""))
+        Constants.CChain.setAddress(address: "C-" + (addresses.walletAddresses.first ?? ""))
         
-        Constants.chainX.clearBalance()
-        Constants.chainP.clearBalance()
+        Constants.XChain.clearBalance()
+        Constants.PChain.clearBalance()
     }
     
     class func delegateAvax(info: DelegatorInfo, amount: String, isValidate: Bool = false,
@@ -617,7 +617,7 @@ public final class AvaxAPI {
                  completion()
                  return }
              if let stake = Double.init(StakeAmount.result.staked) {
-                 Constants.chainP.setStakedBalance(stakedBalance: stake / pow(10, Double.init(9)))
+                 Constants.PChain.setStakedBalance(stakedBalance: stake / pow(10, Double.init(9)))
              }
              
              completion()
