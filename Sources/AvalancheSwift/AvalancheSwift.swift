@@ -18,8 +18,8 @@ public final class AvalancheSwift {
         AvalancheSwift.shared = nil
     }
     
-    public func getChains() -> [Chain] {
-        return [Constants.chainX, Constants.chainP, Constants.chainC]
+    public func getChains() -> [AvalancheChain] {
+        return [Constants.XChain, Constants.PChain, Constants.CChain]
     }
 
     public func getXChain() -> Chain {
