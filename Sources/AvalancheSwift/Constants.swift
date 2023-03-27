@@ -35,6 +35,18 @@ enum chainIdentifier: String {
     }
 }
 
+public class AvalancheChain {
+    public let identifier: String
+    public var balance: Double
+    public var stakedBalance: Double
+    
+    init(identifier: String) {
+        self.identifier = identifier
+        self.balance = 0
+        self.stakedBalance = 0
+    }
+}
+
 public class Chain {
     
     public let identifier: String
@@ -46,9 +58,6 @@ public class Chain {
     public var latestAddress: String
     public let exportAvaxType: Int32
     public let importAvaxType: Int32
-    public var balance: Double
-    public var availableBalance: Double
-    public var stakedBalance: Double
     
     init(identifier: String, blockchainId: BlockchainId, getUTXOs: String, getTx: String, issueTx: String, evm: String, exportAvaxType: Int32, importAvaxType: Int32) {
         self.identifier = identifier
@@ -59,9 +68,6 @@ public class Chain {
         self.evm = evm
         self.exportAvaxType = exportAvaxType
         self.importAvaxType = importAvaxType
-        self.balance = 0
-        self.availableBalance = 0
-        self.stakedBalance = 0
         self.latestAddress = ""
     }
     
@@ -85,6 +91,10 @@ public class Chain {
 }
 
 class Constants {
+    
+    public static let XChain = AvalancheChain.init(identifier: "X")
+    public static let PChain = AvalancheChain.init(identifier: "P")
+    public static let CChain = AvalancheChain.init(identifier: "C")
     
     public static let chainX = Chain.init(identifier: "X",
                                           blockchainId: .xBlockchain,
