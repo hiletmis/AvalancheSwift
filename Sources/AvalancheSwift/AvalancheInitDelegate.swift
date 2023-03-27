@@ -9,6 +9,6 @@ import Foundation
 
 public protocol AvalancheInitDelegate: AnyObject {
     func addressesInitialized()
-    func balanceInitialized(chain: Chain)
-    func delegationInitialized(chain: Chain)
+    func balanceInitialized(chain: AvalancheChain)
+    func delegationInitialized(chain: AvalancheChain)
 }

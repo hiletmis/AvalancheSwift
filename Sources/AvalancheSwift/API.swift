@@ -43,17 +43,17 @@ public final class AvaxAPI {
            DispatchQueue.global(qos: .background).async  {
                getUTXOs(addresses: xRequestBatch, chain: Constants.chainX) { balance in
                    Constants.XChain.addBalance(balance: balance, availableBalance: balance)
-                   delegate.balanceInitialized(chain: Constants.chainX)
+                   delegate.balanceInitialized(chain: Constants.XChain)
                }
            }
            
            DispatchQueue.global(qos: .background).async  {
                getUTXOs(addresses: pRequestBatch, chain: Constants.chainP) { balance in
                    Constants.PChain.addBalance(balance: balance, availableBalance: balance)
-                   delegate.balanceInitialized(chain: Constants.chainP)
+                   delegate.balanceInitialized(chain: Constants.PChain)
                    
                    getPlatformStake(addresses: pRequestBatch) {
-                       delegate.delegationInitialized(chain: Constants.chainP)
+                       delegate.delegationInitialized(chain: Constants.PChain)
                    }
                }
            }
@@ -70,7 +70,7 @@ public final class AvaxAPI {
                  
                getUTXOs(addresses: xIntRequestBatch, chain: Constants.chainX) { balance in
                    Constants.XChain.addBalance(balance: balance, availableBalance: balance)
-                   delegate.balanceInitialized(chain: Constants.chainX)
+                   delegate.balanceInitialized(chain: Constants.XChain)
                }
            }
        }
