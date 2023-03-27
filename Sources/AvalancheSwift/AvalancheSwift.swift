@@ -23,15 +23,15 @@ public final class AvalancheSwift {
     }
 
     public func getXChain() -> AvalancheChain {
-        return Constants.chainX
+        return Constants.XChain
     }
 
     public func getPChain() -> AvalancheChain {
-        return Constants.chainP
+        return Constants.PChain
     }
 
     public func getCChain() -> AvalancheChain {
-        return Constants.chainC
+        return Constants.CChain
     }
 
     public func delegateAvax(info: DelegatorInfo, amount: String, isValidate: Bool = false,
