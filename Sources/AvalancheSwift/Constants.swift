@@ -39,12 +39,34 @@ public class AvalancheChain {
     public let identifier: String
     public var balance: Double
     public var stakedBalance: Double
+    public var latestAddress: String?
     
     init(identifier: String) {
         self.identifier = identifier
         self.balance = 0
         self.stakedBalance = 0
+        self.latestAddress = nil
     }
+    
+    func addBalance(balance: Double, availableBalance: Double) {
+        self.balance += balance
+        self.availableBalance += availableBalance
+    }
+
+    func setStakedBalance(stakedBalance: Double) {
+        self.stakedBalance = stakedBalance
+    }
+     
+    func clearBalance() {
+        self.balance = 0
+        self.availableBalance = 0
+    }
+    
+    func setAddress(address: String) {
+        self.latestAddress = address
+    }
+
+    
 }
 
 public class Chain {
@@ -55,7 +77,6 @@ public class Chain {
     public let issueTx: String
     public let getTx: String
     public let evm: String
-    public var latestAddress: String
     public let exportAvaxType: Int32
     public let importAvaxType: Int32
     
@@ -68,25 +89,6 @@ public class Chain {
         self.evm = evm
         self.exportAvaxType = exportAvaxType
         self.importAvaxType = importAvaxType
-        self.latestAddress = ""
-    }
-    
-    func clearBalance() {
-        self.balance = 0
-        self.availableBalance = 0
-    }
-    
-    func setAddress(address: String) {
-        self.latestAddress = address
-    }
-    
-    func addBalance(balance: Double, availableBalance: Double) {
-        self.balance += balance
-        self.availableBalance += availableBalance
-    }
-
-    func setStakedBalance(stakedBalance: Double) {
-        self.stakedBalance = stakedBalance
     }
 }
 
