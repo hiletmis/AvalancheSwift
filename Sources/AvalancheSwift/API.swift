@@ -229,8 +229,7 @@ public final class AvaxAPI {
         }
     }
     
-    class func importAvax(from: Chain, to: Chain,
-                          completion: @escaping (_ txId: String?, _ tx: String?)->()) {
+    class func importAvax(from: Chain, to: Chain, completion: @escaping (_ txId: String?, _ tx: String?)->()) {
 
         var addresses = AddressesWallet.map({to.identifier + "-" + $0})
         let blockchainId = to.blockchainId.rawValue
@@ -283,7 +282,6 @@ public final class AvaxAPI {
                          chain: to, signatures: getPkeyInd(utxos: sorted), isSegwit: true, completion: completion)
             } else {
                 completion(nil, nil)
-                print("amountError")
             }
         }
     }
@@ -321,8 +319,7 @@ public final class AvaxAPI {
         
     }
     
-    class func exportAvax(from: Chain, to: Chain, amount: String,
-                          completion: @escaping (_ txId: String?, _ tx: String?)->()) {
+    class func exportAvax(from: Chain, to: Chain, amount: String, completion: @escaping (_ txId: String?, _ tx: String?)->()) {
  
         let addresses = AddressesWallet.map({from.identifier + "-" + $0})
         guard let exportTo = addresses.first else {return}
@@ -371,7 +368,6 @@ public final class AvaxAPI {
                 
             } else {
                 completion(nil, nil)
-                print("amountError")
             }
         }
     }

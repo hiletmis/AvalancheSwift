@@ -63,8 +63,6 @@ public class AvalancheChain {
     func setAddress(address: String) {
         self.latestAddress = address
     }
-
-    
 }
 
 public class Chain {

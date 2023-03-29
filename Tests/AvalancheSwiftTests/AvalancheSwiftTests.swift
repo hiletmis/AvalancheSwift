@@ -2,7 +2,7 @@ import XCTest
 import BigInteger
 @testable import AvalancheSwift
 
-final class AvalancheSwiftTests: XCTestCase, AvalancheInitDelegate {
+final class AvalancheSwiftTests: XCTestCase {
     func addressesInitialized() {
         return
     }
@@ -122,7 +122,6 @@ final class AvalancheSwiftTests: XCTestCase, AvalancheInitDelegate {
         let expectation = self.expectation(description: "Check Balance")
 
         AvaxAPI.initVars(AvalancheSwiftTests.seed)
-        AvaxAPI.checkState(delegate: self)
         
         waitForExpectations(timeout: 90, handler: nil)
 
