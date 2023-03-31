@@ -7,6 +7,7 @@
 
 import BigInteger
 import Foundation
+import EnnoUtil
 
 // MARK: - DelegatorInfo
 public struct DelegatorInfo {
@@ -292,6 +293,54 @@ public struct TransferableInput: Codable {
     public let utxo_index: Int32
     public let asset_id: String
     public let input: TransferInput
+    
+    init(tx_id: String, utxo_index: Int32, asset_id: String, input: TransferInput) {
+        self.tx_id = tx_id
+        self.utxo_index = utxo_index
+        self.asset_id = asset_id
+        self.input = input
+    }
+    
+    init(expression: String, addresses: [String], internalAddresses:[String]) {
+        let assetId = Util.encodeBase58Check(data: (expression.substr(78, 64) ?? "N/A"))
+        let uTXOIndex = expression.substr(70, 8) ?? "N/A"
+        
+        let locktime = expression.substr(166, 16) ?? "N/A"
+        let amount = expression.substr(150, 16) ?? "N/A"
+        let txID = Util.encodeBase58Check(data: (expression.substr(6, 64) ?? "N/A"))
+        
+        let addressLength = Int32(expression.substr(190, 8) ?? "0000", radix: 16) ?? 0
+        
+        var indices:[Int32] = []
+        var addressIndex:[Int] = []
+        
+        if addressLength > 0 {
+            for item in 0...addressLength - 1 {
+                let ripesha = expression.substr(198 + (Int(item) * 40), 40)
+                let address = Web3Crypto.shared.bech32Address(ripesha: ripesha!.hexToBytes(), hrp: "avax")
+                
+                if let index = addresses.firstIndex(of: address ?? "N/A") {
+                    addressIndex.append(index)
+                } else {
+                    let indexAll = internalAddresses.firstIndex(of: address ?? "N/A")
+                    addressIndex.append((indexAll ?? 0) * (-1))
+                }
+                indices.append(Int32(item))
+            }
+        }
+        
+        let amountBigUInt = BigUInt(amount, radix: 16)
+        let locktimeBigUInt = BigUInt(locktime, radix: 16)
+        let utxoIndexBigUInt = BigUInt(uTXOIndex, radix: 16)
+        
+        let transferInput = TransferInput.init(type_id: 5,
+                                               amount: amountBigUInt ?? 0,
+                                               addresses: addressIndex,
+                                               locked: locktimeBigUInt ?? 0,
+                                               address_indices: indices)
+        
+        self.init(tx_id: txID, utxo_index: Int32(utxoIndexBigUInt ?? 0), asset_id: assetId, input: transferInput)
+    }
 }
 
 // MARK: - TransferInput
@@ -330,6 +379,40 @@ public struct UnsignedExportTx: Codable {
     public let base_tx: [UInt8]
     public let destination_chain: [UInt8]
     public let outs: [TransferableOutput]
+    
+    init(base_tx: [UInt8], destination_chain: [UInt8], outs: [TransferableOutput]) {
+        self.base_tx = base_tx
+        self.destination_chain = destination_chain
+        self.outs = outs
+    }
+    
+    init?(utxos: [TransferableInput], amount: BigUInt, exportTo: String, fee: BigUInt, type: Int32, from: String, to: String) {
+        
+        if let availableBalance = Util.calculateChange(utxos: utxos, amount: amount) {
+            
+            var outputs: [TransferableOutput] = []
+            
+            if availableBalance > 0 {
+                let change = TransferOutput.init(amount:availableBalance, addresses: [exportTo])
+                let transferChange = TransferableOutput.init(asset_id: assetId.avaxAssetId.rawValue, output: change)
+                outputs.append(transferChange)
+            }
+            
+            let output = TransferOutput.init(amount: amount - fee, addresses: [exportTo])
+            let transferDest = TransferableOutput.init(asset_id: assetId.avaxAssetId.rawValue, output: output)
+            let inputs: [TransferableInput] = utxos
+            let export = BaseTx.init(type_id: type,
+                                     network_id: 1,
+                                     blockchain_id: from,
+                                     outputs: outputs, inputs: inputs, memo: "EnnoWallet Avalanche Export")
+            
+            self.init(base_tx: TypeEncoder.encodeType(type: export),
+                      destination_chain: Util.decodeBase58Check(data: to),
+                      outs: [transferDest])
+        } else {
+            return nil
+        }
+    }
 }
 
 // MARK: - ExportAvax

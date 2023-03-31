@@ -268,7 +268,6 @@ public final class AvaxAPI {
         guard let exportTo = addresses.first else {return}
           
         let evmInput = EVMInput.init(address: web3Address, amount: amount, asset_id: assetId.avaxAssetId.rawValue, nonce: nonce)
-         
         let output = TransferOutput.init(amount: amount - fee, addresses: [exportTo])
         let transferOutput = TransferableOutput.init(asset_id: assetId.avaxAssetId.rawValue, output: output)
         
@@ -290,36 +289,17 @@ public final class AvaxAPI {
         let amount = Util.double2BigUInt(amount, 9)
 
         getAddressUTXOs(addresses: addresses, chain: from, sourceChain: from) { utxos in
-             
             let sorted = Util.sortLexi(utxos:utxos, amount: amount)
-            
-            if let availableBalance = Util.calculateChange(utxos: sorted, amount: amount) {
-                         
-                var outputs: [TransferableOutput] = []
-
-                if availableBalance > 0 {
-                    let change = TransferOutput.init(amount:availableBalance, addresses: [exportTo])
-                    let transferChange = TransferableOutput.init(asset_id: assetId.avaxAssetId.rawValue, output: change)
-                    outputs.append(transferChange)
-                }
-                   
-                let output = TransferOutput.init(amount: amount - segwitFee, addresses: [exportTo])
+            if let unsignedTx = UnsignedExportTx(utxos: utxos,
+                                                 amount: amount,
+                                                 exportTo: exportTo,
+                                                 fee: segwitFee,
+                                                 type: from.exportAvaxType,
+                                                 from: from.blockchainId.rawValue,
+                                                 to: to.blockchainId.rawValue) {
                 
-                let transferDest = TransferableOutput.init(asset_id: assetId.avaxAssetId.rawValue, output: output)
-                
-                let inputs: [TransferableInput] = sorted
-                 
-                let export = BaseTx.init(type_id: from.exportAvaxType, network_id: 1,
-                                         blockchain_id: from.blockchainId.rawValue,
-                                         outputs: outputs, inputs: inputs, memo: "EnnoWallet Avalanche Export")
-                
-                let unsignedTx = UnsignedExportTx.init(base_tx: TypeEncoder.encodeType(type: export),
-                                                       destination_chain: Util.decodeBase58Check(data: destination_chain),
-                                                       outs: [transferDest])
-                                
                 createTx(transaction: TypeEncoder.encodeType(type: unsignedTx),
                          chain: from, signatures: getPkeyInd(utxos: sorted), isSegwit: true, completion: completion)
-                
             } else {
                 completion(nil, nil)
             }
@@ -382,56 +362,14 @@ public final class AvaxAPI {
         let xUTXORequest = PVMRPCModel.init(method: chain.getUTXOs,
                                             params: .init(addresses: allAddresses, limit: 200, sourceChain: sourceChain.identifier))
         
-        RequestService.New(rURL: chain.evm, postData: xUTXORequest.data, sender: UTXOS.self) { [self] result, statusCode, error in
+        RequestService.New(rURL: chain.evm, postData: xUTXORequest.data, sender: UTXOS.self) { result, statusCode, error in
             guard let xAddressChainsList = result else {
                 completion([])
                 return
             }
                         
             let utxos = xAddressChainsList.result.utxos.map { expression -> TransferableInput in
-                let assetId = Util.encodeBase58Check(data: (expression.substr(78, 64) ?? "N/A"))
-                let uTXOIndex = expression.substr(70, 8) ?? "N/A"
-                
-                let locktime = expression.substr(166, 16) ?? "N/A"
-                let amount = expression.substr(150, 16) ?? "N/A"
-                let txID = Util.encodeBase58Check(data: (expression.substr(6, 64) ?? "N/A"))
-                
-                let addressLength = Int32(expression.substr(190, 8) ?? "0000", radix: 16) ?? 0
-                
-                var indices:[Int32] = []
-                var addressIndex:[Int] = []
-                
-                if addressLength > 0 {
-                    for item in 0...addressLength - 1 {
-                        let ripesha = expression.substr(198 + (Int(item) * 40), 40)
-                        let address = Web3Crypto.shared.bech32Address(ripesha: ripesha!.hexToBytes(), hrp: "avax")
-                        
-                        if let index = AddressesWallet.firstIndex(of: address ?? "N/A") {
-                            addressIndex.append(index)
-                        } else {
-                            let indexAll = AddressesIntX.firstIndex(of: address ?? "N/A")
-                            addressIndex.append((indexAll ?? 0) * (-1))
-                        }
-                        indices.append(Int32(item))
-                    }
-                }
-                
-                let amountBigUInt = BigUInt(amount, radix: 16)
-                let locktimeBigUInt = BigUInt(locktime, radix: 16)
-                let utxoIndexBigUInt = BigUInt(uTXOIndex, radix: 16)
-                
-                let transferInput = TransferInput.init(type_id: 5,
-                                                       amount: amountBigUInt ?? 0,
-                                                       addresses: addressIndex,
-                                                       locked: locktimeBigUInt ?? 0,
-                                                       address_indices: indices)
-                
-                let transferableInput = TransferableInput.init(tx_id: txID,
-                                                               utxo_index: Int32(utxoIndexBigUInt ?? 0),
-                                                               asset_id: assetId,
-                                                               input: transferInput)
-                
-                return transferableInput
+                TransferableInput.init(expression: expression, addresses: AddressesWallet, internalAddresses: AddressesIntX)
             }
             completion(utxos)
         }
