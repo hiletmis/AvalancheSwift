@@ -31,6 +31,6 @@ public struct BaseExportTxEvm: Codable {
         let output = TransferOutput.init(amount: amount - fee, addresses: [exportTo])
         let transferOutput = TransferableOutput.init(asset_id: assetId.avaxAssetId.rawValue, output: output)
         
-        self.init(typeID: typeId, networkID: 1, blockchainID: from, destinationChain: to, inputs: [evmInput], exportedOutputs: [transferOutput])
+        return self.init(typeID: typeId, networkID: 1, blockchainID: from, destinationChain: to, inputs: [evmInput], exportedOutputs: [transferOutput])
     }
 }

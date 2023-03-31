@@ -54,7 +54,7 @@ public struct UnsignedDelegator: Codable {
             let secpOutputOwner = SECP256K1OutputOwners.init(addresses: [info.rewardAddress])
             
             if let nodeId = info.nodeId {
-                self.init(baseTx: baseTx, nodeId: nodeId, startTime: BigUInt(info.startTime), endTime: BigUInt(info.endTime),
+                return self.init(baseTx: baseTx, nodeId: nodeId, startTime: BigUInt(info.startTime), endTime: BigUInt(info.endTime),
                           weight: amount, lockedOuts: [lockedOutput], rewardsOwner: secpOutputOwner, shares: info.shares)
             }
         }

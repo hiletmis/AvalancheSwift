@@ -38,7 +38,8 @@ public struct UnsignedImportTx: Codable {
             
             self.init(base_tx: TypeEncoder.encodeType(type: export), source_chain: Util.decodeBase58Check(data: from), ins: utxos)
             
+        } else {
+            return nil
         }
-        return nil
     }
 }

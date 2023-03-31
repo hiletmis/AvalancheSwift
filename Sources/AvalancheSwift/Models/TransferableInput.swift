@@ -61,6 +61,6 @@ public struct TransferableInput: Codable {
                                                locked: locktimeBigUInt ?? 0,
                                                address_indices: indices)
         
-        self.init(tx_id: txID, utxo_index: Int32(utxoIndexBigUInt ?? 0), asset_id: assetId, input: transferInput)
+        return self.init(tx_id: txID, utxo_index: Int32(utxoIndexBigUInt ?? 0), asset_id: assetId, input: transferInput)
     }
 }
