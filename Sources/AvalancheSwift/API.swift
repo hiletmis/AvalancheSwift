@@ -94,7 +94,6 @@ public final class AvaxAPI {
                 let address = Web3Crypto.shared.bech32Address(ripesha: ripesha, hrp: "avax")
 
                 addresses.append(address ?? "N/A")
-
             }
         }
         return addresses
@@ -160,7 +159,6 @@ public final class AvaxAPI {
     class func importAvax(from: Chain, to: Chain, completion: @escaping (_ txId: String?, _ tx: String?)->()) {
 
         var addresses = AddressesWallet.map({to.identifier + "-" + $0})
-        
         guard let importTo = addresses.first else { return }
 
         if to.identifier == "X" {
@@ -182,10 +180,9 @@ public final class AvaxAPI {
     
     class func exportToAvaxC(from: Chain, to: Chain, amount: String, web3Address: String, nonce: String,
                              completion: @escaping (_ txId: String?, _ tx: String?)->()) {
-        guard let nonce = BigUInt(nonce, radix: 16) else { return }
         
+        guard let nonce = BigUInt(nonce, radix: 16) else { return }
         let amount = Util.double2BigUInt(amount, 9)
-
         let addresses = AddressesWallet.map({from.identifier + "-" + $0})
         guard let exportTo = addresses.first else {return}
           
@@ -231,9 +228,7 @@ public final class AvaxAPI {
     class func createTx(transaction: [UInt8], chain: Chain, signatures : [Int], isSegwit: Bool,
                         completion: @escaping (_ txId: String?, _ tx: String?)->()) {
         var bsize = transaction.count
-        
         let signature = sign(buffer: Data(transaction), sigs: signatures, isSegwit: isSegwit)
-        
         let crdlen = TypeEncoder.byter(input: Int32(signature.count), len: 4)
         bsize += crdlen.count
 
@@ -310,7 +305,8 @@ public final class AvaxAPI {
             
             guard let output = result else {
                 completion(0)
-                return }
+                return
+            }
             
             var totalBalance: BigUInt = 0
             
@@ -368,8 +364,7 @@ public final class AvaxAPI {
     
     class func getPlatformStake(addresses: [String], completion: @escaping ()->()) {
          RequestService.New(rURL: Constants.chainP.evm,
-                            postData: PVMRPCModel.init(method: .platformGetStake, params: .init(addresses: addresses, limit: 100)).data,
-                            sender: GetStaked.self) { result,_,_ in
+                            postData: PVMRPCModel.init(method: .platformGetStake, params: .init(addresses: addresses, limit: 100)).data, sender: GetStaked.self) { result,_,_ in
              guard let StakeAmount = result else {
                  completion()
                  return }
