@@ -33,8 +33,9 @@ public struct BaseImportTxEvm: Codable {
             let evmOutput = EVMOutput.init(address: web3Address, amount: availableBalance - fee,
                                            asset_id: assetId.avaxAssetId.rawValue)
             
-            return self.init(typeID: typeId, networkID: 1, blockchainID: to, sourceChain: from, importedInputs: [evmOutput], outs: utxos)
+            self.init(typeID: typeId, networkID: 1, blockchainID: to, sourceChain: from, importedInputs: [evmOutput], outs: utxos)
+        } else {
+            return nil
         }
-        return nil
     }
 }
