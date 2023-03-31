@@ -121,8 +121,6 @@ public final class AvaxAPI {
     class func delegateAvax(info: DelegatorInfo, amount: String, isValidate: Bool = false,
                             completion: @escaping (_ txId: String?, _ tx: String?)->()) {
         
-        let typeId:Int32 = isValidate ? 12 : 14
-        
         let addresses = AddressesWallet.map({"P-" + $0})
         let amount = Util.double2BigUInt(info.weight, 9)
 
@@ -131,42 +129,11 @@ public final class AvaxAPI {
         getAddressUTXOs(addresses: addresses, chain: Constants.chainP, sourceChain: Constants.chainP) { utxos in            
             let sorted = Util.sortLexi(utxos:utxos, amount: amount)
 
-            if let availableBalance = Util.calculateChange(utxos: sorted, amount: amount) {
-                var outputs: [TransferableOutput] = []
-
-                if availableBalance > 0 {
-                    let change = TransferOutput.init(amount:availableBalance, addresses: [exportTo])
-                    let transferChange = TransferableOutput.init(asset_id: assetId.avaxAssetId.rawValue, output: change)
-                    outputs.append(transferChange)
-                }
-                
-                let inputs: [TransferableInput] = sorted
-                let baseTx = BaseTx.init(type_id: typeId,
-                                         network_id: 1,
-                                         blockchain_id: BlockchainId.pBlockchain.rawValue,
-                                         outputs: outputs,
-                                         inputs: inputs,
-                                         memo: "")
-                
-                let output = TransferOutput.init(amount: amount, addresses: [exportTo])
-                let lockedOutput = TransferableOutput.init(asset_id: assetId.avaxAssetId.rawValue, output: output)
-                let secpOutputOwner = SECP256K1OutputOwners.init(addresses: [info.rewardAddress])
-                
-                if let nodeId = info.nodeId {
-                    let delegateTx = UnsignedDelegator.init(baseTx: baseTx,
-                                                            nodeId: nodeId ,
-                                                            startTime: BigUInt(info.startTime),
-                                                            endTime: BigUInt(info.endTime),
-                                                            weight: amount,
-                                                            lockedOuts: [lockedOutput],
-                                                            rewardsOwner: secpOutputOwner,
-                                                            shares: info.shares)
-                    
-                    createTx(transaction: TypeEncoder.encodeType(type: delegateTx),
-                             chain: Constants.chainP,
-                             signatures: getPkeyInd(utxos: sorted),
-                             isSegwit: true, completion: completion)
-                }
+            if let delegateTx = UnsignedDelegator.init(info: info, utxos: sorted, amount: amount, typeId: isValidate ? 12 : 14, exportTo: exportTo) {
+                createTx(transaction: TypeEncoder.encodeType(type: delegateTx),
+                         chain: Constants.chainP,
+                         signatures: getPkeyInd(utxos: sorted),
+                         isSegwit: true, completion: completion)
             } else {
                 completion(nil, nil)
             }
@@ -290,7 +257,7 @@ public final class AvaxAPI {
 
         getAddressUTXOs(addresses: addresses, chain: from, sourceChain: from) { utxos in
             let sorted = Util.sortLexi(utxos:utxos, amount: amount)
-            if let unsignedTx = UnsignedExportTx(utxos: utxos,
+            if let unsignedTx = UnsignedExportTx(utxos: sorted,
                                                  amount: amount,
                                                  exportTo: exportTo,
                                                  fee: segwitFee,
