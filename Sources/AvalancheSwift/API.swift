@@ -143,34 +143,14 @@ public final class AvaxAPI {
     class func importAvaxC(from: Chain, to: Chain, web3Address: String,
                            completion: @escaping (_ txId: String?, _ tx: String?)->()) {
         
-        getAddressUTXOs(addresses: AddressesWallet.map({to.identifier + "-" + $0}),
-                        chain: to,
-                        sourceChain: from) { utxos in
-        
-            if let availableBalance =  Util.calculateChange(utxos: utxos, amount: 0) {
-                let sorted = Util.sortLexi(utxos:utxos, amount: 0, sortOnly: true)
+        getAddressUTXOs(addresses: AddressesWallet.map({to.identifier + "-" + $0}), chain: to, sourceChain: from) { utxos in
+            let sorted = Util.sortLexi(utxos:utxos, amount: 0, sortOnly: true)
+            
+            if let importTx = BaseImportTxEvm.init(utxos: sorted, fee: fee, web3Address: web3Address, typeId: to.importAvaxType,
+                                                   from: from.blockchainId.rawValue, to: to.blockchainId.rawValue) {
                 
-                if availableBalance < fee {
-                    completion(nil, nil)
-                    return
-                }
-                
-                let evmOutput = EVMOutput.init(address: web3Address,
-                                              amount: availableBalance - fee,
-                                              asset_id: assetId.avaxAssetId.rawValue)
-                 
-                let importTx = BaseImportTxEvm.init(typeID: to.importAvaxType,
-                                                    networkID: 1,
-                                                    blockchainID: to.blockchainId.rawValue,
-                                                    sourceChain: from.blockchainId.rawValue,
-                                                    importedInputs: [evmOutput],
-                                                    outs: sorted)
-                
-                createTx(transaction: TypeEncoder.encodeType(type: importTx),
-                         chain: to,
-                         signatures: getPkeyInd(utxos: sorted),
+                createTx(transaction: TypeEncoder.encodeType(type: importTx), chain: to, signatures: getPkeyInd(utxos: sorted),
                          isSegwit: true, completion: completion)
-                
             } else {
                 completion(nil, nil)
             }
@@ -252,7 +232,6 @@ public final class AvaxAPI {
  
         let addresses = AddressesWallet.map({from.identifier + "-" + $0})
         guard let exportTo = addresses.first else {return}
-        let destination_chain = to.blockchainId.rawValue
         let amount = Util.double2BigUInt(amount, 9)
 
         getAddressUTXOs(addresses: addresses, chain: from, sourceChain: from) { utxos in
