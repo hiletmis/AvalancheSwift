@@ -168,35 +168,10 @@ public final class AvaxAPI {
         }
         
         getAddressUTXOs(addresses: addresses, chain: to, sourceChain: from) { utxos in
+            let sorted = Util.sortLexi(utxos:utxos, amount: 0)
 
-            if let availableBalance = Util.calculateChange(utxos: utxos, amount: 0) {
-                let sorted = Util.sortLexi(utxos:utxos, amount: 0)
-                                   
-                if availableBalance < fee {
-                    completion(nil, nil)
-                    return
-                }
+            if let unsignedTx = UnsignedImportTx.init(utxos: sorted, fee: segwitFee, importTo: importTo, typeId: to.importAvaxType, from: from.blockchainId.rawValue, to: to.blockchainId.rawValue) {
                 
-                let output = TransferOutput.init(amount:availableBalance - segwitFee, addresses: [importTo])
-                
-                let transferDest = TransferableOutput.init(asset_id: assetId.avaxAssetId.rawValue, output: output)
-                let transferInput = sorted
-                
-                let outputs: [TransferableOutput] = [transferDest]
-                let inputs: [TransferableInput] = []
-                
-                
-                let export = BaseTx.init(type_id: to.importAvaxType,
-                                             network_id: 1,
-                                             blockchain_id: to.blockchainId.rawValue,
-                                             outputs: outputs,
-                                             inputs: inputs,
-                                             memo: "EnnoWallet Avalanche Import")
-                
-                let unsignedTx = UnsignedImportTx.init(base_tx: TypeEncoder.encodeType(type: export),
-                                                       source_chain: Util.decodeBase58Check(data: from.blockchainId.rawValue),
-                                                       ins: transferInput)
-                                
                 createTx(transaction: TypeEncoder.encodeType(type: unsignedTx),
                          chain: to, signatures: getPkeyInd(utxos: sorted), isSegwit: true, completion: completion)
             } else {
