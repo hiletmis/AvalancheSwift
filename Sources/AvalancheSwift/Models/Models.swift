@@ -159,6 +159,16 @@ public struct UTXOResult: Codable {
     public let utxos: [String]
     public let endIndex: EndIndex
     public let encoding: String
+    
+    public func toDouble() -> Double {
+        var totalBalance: BigUInt = 0
+
+        for item in utxos {
+            let amount : String = item.substr(150, 16) ?? "N/A"
+            totalBalance += BigUInt(amount, radix: 16) ?? .zero
+        }
+        return Double.init(totalBalance) / pow(10, Double.init(9))
+    }
 }
 
 // MARK: - EndIndex
@@ -198,6 +208,16 @@ public struct ResultStake: Codable {
     public let staked: String
     public let stakedOutputs: [String]
     public let encoding: String
+    
+    init(staked: String, stakedOutputs: [String], encoding: String) {
+        self.staked = staked
+        self.stakedOutputs = stakedOutputs
+        self.encoding = encoding
+        
+        if let stake = Double.init(staked) {
+            Constants.PChain.setStakedBalance(stakedBalance: stake / pow(10, Double.init(9)))
+        }
+    }
 }
 
 // MARK: - TransferableOutput {

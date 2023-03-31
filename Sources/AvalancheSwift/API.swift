@@ -32,7 +32,7 @@ public final class AvaxAPI {
         var pRequestBatch: [String] = []
         var xIntRequestBatch: [String] = []
 
-       checkChainAddresses(addresses: AddressesWallet) { [self] result in
+       checkChainAddresses(addresses: AddressesWallet) { result in
            guard let result = result else {return}
            
            for item in result.addressChains {
@@ -64,7 +64,7 @@ public final class AvaxAPI {
            }
        }
        
-       checkChainAddresses(addresses: AddressesIntX, inner: true) { [self] result in
+       checkChainAddresses(addresses: AddressesIntX, inner: true) { result in
            if let result = result {
                for item in result.addressChains {
                    if item.value.contains(BlockchainId.xBlockchain.rawValue) {
@@ -235,7 +235,7 @@ public final class AvaxAPI {
         var barr = [transaction, crdlen]
         
         for (_, i) in signature.enumerated() {
-            let credBuff: [UInt8] = credID + i
+            let credBuff = credID + i
             
             bsize += credID.count
             bsize += credBuff.count
@@ -307,14 +307,7 @@ public final class AvaxAPI {
                 completion(0)
                 return
             }
-            
-            var totalBalance: BigUInt = 0
-            
-            for item in output.result.utxos {
-                let amount : String = item.substr(150, 16) ?? "N/A"
-                totalBalance += BigUInt(amount, radix: 16) ?? .zero
-            }
-            completion(Double.init(totalBalance) / pow(10, Double.init(9)))
+            completion(output.result.toDouble())
         }
     }
     
@@ -364,13 +357,8 @@ public final class AvaxAPI {
     
     class func getPlatformStake(addresses: [String], completion: @escaping ()->()) {
          RequestService.New(rURL: Constants.chainP.evm,
-                            postData: PVMRPCModel.init(method: .platformGetStake, params: .init(addresses: addresses, limit: 100)).data, sender: GetStaked.self) { result,_,_ in
-             guard let StakeAmount = result else {
-                 completion()
-                 return }
-             if let stake = Double.init(StakeAmount.result.staked) {
-                 Constants.PChain.setStakedBalance(stakedBalance: stake / pow(10, Double.init(9)))
-             }
+                            postData: PVMRPCModel.init(method: .platformGetStake, params: .init(addresses: addresses, limit: 100)).data,
+                            sender: GetStaked.self) { result,_,_ in
              completion()
          }
      }
