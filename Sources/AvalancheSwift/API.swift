@@ -189,18 +189,10 @@ public final class AvaxAPI {
         let addresses = AddressesWallet.map({from.identifier + "-" + $0})
         guard let exportTo = addresses.first else {return}
           
-        let evmInput = EVMInput.init(address: web3Address, amount: amount, asset_id: assetId.avaxAssetId.rawValue, nonce: nonce)
-        let output = TransferOutput.init(amount: amount - fee, addresses: [exportTo])
-        let transferOutput = TransferableOutput.init(asset_id: assetId.avaxAssetId.rawValue, output: output)
-        
-        let export = BaseExportTxEvm.init(typeID: from.exportAvaxType, networkID: 1,
-                                          blockchainID: from.blockchainId.rawValue,
-                                          destinationChain: to.blockchainId.rawValue,
-                                          inputs: [evmInput], exportedOutputs: [transferOutput])
+        let export = BaseExportTxEvm.init(web3Address: web3Address, amount: amount, nonce: nonce, exportTo: exportTo, fee: fee, typeId: from.exportAvaxType, from: from.blockchainId.rawValue, to: to.blockchainId.rawValue)
                 
         createTx(transaction: TypeEncoder.encodeType(type: export),
                  chain: from, signatures: [0], isSegwit: false, completion: completion)
-        
     }
     
     class func exportAvax(from: Chain, to: Chain, amount: String, completion: @escaping (_ txId: String?, _ tx: String?)->()) {
