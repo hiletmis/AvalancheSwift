@@ -180,3 +180,8 @@ public enum ApiEndpoints: String {
     case platformGetCurrentValidators = "platform.getCurrentValidators"
     case platformGetStake = "platform.getStake"
 }
+
+public enum ApiUrls: String {
+    case chainAddressBatch = "https://explorerapi.avax.network/v2/addressChains"
+    case getValidatorsURL = "https://api.avax.network/ext/bc/P"
+}

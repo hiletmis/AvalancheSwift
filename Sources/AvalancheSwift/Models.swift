@@ -51,6 +51,11 @@ public struct AtomicTx: Codable {
 // MARK: - Params
 public struct ParamsAtomicTx: Codable {
     public let txID, encoding: String
+    
+    init(txID: String) {
+        self.txID = txID
+        self.encoding = "hex"
+    }
 }
 
 // MARK: - IssueTxResult
@@ -410,4 +415,10 @@ public struct Delegator: Codable {
 public struct RewardOwner: Codable {
     public let locktime, threshold: String
     public let addresses: [String]
+}
+
+
+// MARK: - AddressBatchRequest
+struct AddressBatchRequest: Codable {
+    let address: [String]
 }

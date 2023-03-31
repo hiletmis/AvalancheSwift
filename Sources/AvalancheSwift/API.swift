@@ -17,8 +17,11 @@ public final class AvaxAPI {
     private static var privateKeySegwit: String?
     private static var privateKeyWeb3: String?
     private static let fee: BigUInt = 350937
+    private static let segwitFee: BigUInt = 1000000
+    
+    private static let credID: [UInt8] = [0,0,0,1]
+    private static let credType: [UInt8] = [0,0,0,9]
 
-     
     class func checkState(delegate: AvalancheInitDelegate) {
         
         Constants.XChain.clearBalance()
@@ -59,7 +62,6 @@ public final class AvaxAPI {
                    }
                }
            }
-
        }
        
        checkChainAddresses(addresses: AddressesIntX, inner: true) { [self] result in
@@ -76,7 +78,6 @@ public final class AvaxAPI {
                }
            }
        }
-
     }
 
     class func getXBatch(_ seed: String, _ accountIndex: Int = 0) -> [String] {
@@ -140,7 +141,6 @@ public final class AvaxAPI {
                 }
                 
                 let inputs: [TransferableInput] = sorted
-                
                 let baseTx = BaseTx.init(type_id: typeId,
                                          network_id: 1,
                                          blockchain_id: BlockchainId.pBlockchain.rawValue,
@@ -148,11 +148,8 @@ public final class AvaxAPI {
                                          inputs: inputs,
                                          memo: "")
                 
-               let output = TransferOutput.init(amount: amount, addresses: [exportTo])
-                
-                let lockedOutput = TransferableOutput.init(asset_id: assetId.avaxAssetId.rawValue,
-                                                           output: output)
-                
+                let output = TransferOutput.init(amount: amount, addresses: [exportTo])
+                let lockedOutput = TransferableOutput.init(asset_id: assetId.avaxAssetId.rawValue, output: output)
                 let secpOutputOwner = SECP256K1OutputOwners.init(addresses: [info.rewardAddress])
                 
                 if let nodeId = info.nodeId {
@@ -179,12 +176,11 @@ public final class AvaxAPI {
     class func importAvaxC(from: Chain, to: Chain, web3Address: String,
                            completion: @escaping (_ txId: String?, _ tx: String?)->()) {
         
-        let addresses = AddressesWallet.map({to.identifier + "-" + $0})
-        
-        getAddressUTXOs(addresses: addresses, chain: to, sourceChain: from) { utxos in
+        getAddressUTXOs(addresses: AddressesWallet.map({to.identifier + "-" + $0}),
+                        chain: to,
+                        sourceChain: from) { utxos in
         
             if let availableBalance =  Util.calculateChange(utxos: utxos, amount: 0) {
-                
                 let sorted = Util.sortLexi(utxos:utxos, amount: 0, sortOnly: true)
                 
                 if availableBalance < fee {
@@ -217,19 +213,14 @@ public final class AvaxAPI {
     class func importAvax(from: Chain, to: Chain, completion: @escaping (_ txId: String?, _ tx: String?)->()) {
 
         var addresses = AddressesWallet.map({to.identifier + "-" + $0})
-        let blockchainId = to.blockchainId.rawValue
-        let source_chain = from.blockchainId.rawValue
-
+        
         guard let importTo = addresses.first else { return }
 
-        let typeId = to.importAvaxType
-        
         if to.identifier == "X" {
             addresses.append(contentsOf: AddressesIntX.map({"X-" + $0}))
         }
         
         getAddressUTXOs(addresses: addresses, chain: to, sourceChain: from) { utxos in
-            let fee: BigUInt = 1000000
 
             if let availableBalance = Util.calculateChange(utxos: utxos, amount: 0) {
                 let sorted = Util.sortLexi(utxos:utxos, amount: 0)
@@ -239,7 +230,7 @@ public final class AvaxAPI {
                     return
                 }
                 
-                let output = TransferOutput.init(amount:availableBalance - fee, addresses: [importTo])
+                let output = TransferOutput.init(amount:availableBalance - segwitFee, addresses: [importTo])
                 
                 let transferDest = TransferableOutput.init(asset_id: assetId.avaxAssetId.rawValue, output: output)
                 let transferInput = sorted
@@ -248,15 +239,15 @@ public final class AvaxAPI {
                 let inputs: [TransferableInput] = []
                 
                 
-                let export = BaseTx.init(type_id: typeId,
+                let export = BaseTx.init(type_id: to.importAvaxType,
                                              network_id: 1,
-                                             blockchain_id: blockchainId,
+                                             blockchain_id: to.blockchainId.rawValue,
                                              outputs: outputs,
                                              inputs: inputs,
                                              memo: "EnnoWallet Avalanche Import")
                 
                 let unsignedTx = UnsignedImportTx.init(base_tx: TypeEncoder.encodeType(type: export),
-                                                       source_chain: Util.decodeBase58Check(data: source_chain),
+                                                       source_chain: Util.decodeBase58Check(data: from.blockchainId.rawValue),
                                                        ins: transferInput)
                                 
                 createTx(transaction: TypeEncoder.encodeType(type: unsignedTx),
@@ -276,13 +267,9 @@ public final class AvaxAPI {
         let addresses = AddressesWallet.map({from.identifier + "-" + $0})
         guard let exportTo = addresses.first else {return}
           
-        let evmInput = EVMInput.init(address: web3Address,
-                                     amount: amount,
-                                     asset_id: assetId.avaxAssetId.rawValue,
-                                     nonce: nonce)
+        let evmInput = EVMInput.init(address: web3Address, amount: amount, asset_id: assetId.avaxAssetId.rawValue, nonce: nonce)
          
         let output = TransferOutput.init(amount: amount - fee, addresses: [exportTo])
-        
         let transferOutput = TransferableOutput.init(asset_id: assetId.avaxAssetId.rawValue, output: output)
         
         let export = BaseExportTxEvm.init(typeID: from.exportAvaxType, networkID: 1,
@@ -299,7 +286,6 @@ public final class AvaxAPI {
  
         let addresses = AddressesWallet.map({from.identifier + "-" + $0})
         guard let exportTo = addresses.first else {return}
-        let fee: BigUInt = 1000000
         let destination_chain = to.blockchainId.rawValue
         let amount = Util.double2BigUInt(amount, 9)
 
@@ -317,7 +303,7 @@ public final class AvaxAPI {
                     outputs.append(transferChange)
                 }
                    
-                let output = TransferOutput.init(amount: amount - fee, addresses: [exportTo])
+                let output = TransferOutput.init(amount: amount - segwitFee, addresses: [exportTo])
                 
                 let transferDest = TransferableOutput.init(asset_id: assetId.avaxAssetId.rawValue, output: output)
                 
@@ -341,11 +327,9 @@ public final class AvaxAPI {
     }
     
     class func getAtomicTx(chain: Chain, id: String, completion: @escaping (_ txId: String?, _ tx: String?)->()) {
-    
-        let params = ParamsAtomicTx.init(txID: id, encoding: "hex")
-        let req = AtomicTx.init(method: chain.getTx, params: params)
-        
-        RequestService.New(rURL: chain.evm, postData: req.data, sender: IssueTxResult.self) { result, _, _ in
+        RequestService.New(rURL: chain.evm,
+                           postData: AtomicTx.init(method: chain.getTx, params: .init(txID: id)).data,
+                           sender: IssueTxResult.self) { result, _, _ in
             guard let result = result else { completion(nil, nil); return}
             completion(id, result.result.tx)
         }
@@ -361,17 +345,14 @@ public final class AvaxAPI {
         bsize += crdlen.count
 
         var barr = [transaction, crdlen]
-
+        
         for (_, i) in signature.enumerated() {
-            let credID = TypeEncoder.byter(input: Int32(1), len:4)
-            let credType = TypeEncoder.byter(input: Int32(9), len: 4)
-            barr.append(credType)
-            bsize += credID.count
+            let credBuff: [UInt8] = credID + i
             
-            var credBuff: [UInt8] = []
-            credBuff.append(contentsOf: credID)
-            credBuff.append(contentsOf: i)
+            bsize += credID.count
             bsize += credBuff.count
+            
+            barr.append(credType)
             barr.append(credBuff)
         }
         
@@ -381,12 +362,10 @@ public final class AvaxAPI {
             buff.append(contentsOf: i)
         }
         
-        let tx = Util.hexEncoding(data: buff)
-        let url = chain.evm
-
-        let issueTx = IssueTx.init(method: chain.issueTx, params: .init(tx: tx))
-        
-        RequestService.New(rURL: url, postData: issueTx.data, sender: IssueTxResult.self) { result, _, _ in
+        RequestService.New(rURL: chain.evm,
+                           postData: IssueTx.init(method: chain.issueTx, params: .init(tx: Util.hexEncoding(data: buff))).data,
+                           sender: IssueTxResult.self) { result, _, _ in
+            
             guard let result = result else { completion(nil, nil); return}
             completion(result.result.txID, result.result.tx)
         }
@@ -400,13 +379,10 @@ public final class AvaxAPI {
             allAddresses.append(contentsOf: AddressesIntX.map({"X-" + $0}))
         }
         
-        let function = chain.getUTXOs
-        let url = chain.evm
+        let xUTXORequest = PVMRPCModel.init(method: chain.getUTXOs,
+                                            params: .init(addresses: allAddresses, limit: 200, sourceChain: sourceChain.identifier))
         
-        let xUTXORequest = PVMRPCModel.init(method: function, params: .init(addresses: allAddresses, limit: 200,
-                                                                            sourceChain: sourceChain.identifier))
-        
-        RequestService.New(rURL: url, postData: xUTXORequest.data, sender: UTXOS.self) { [self] result, statusCode, error in
+        RequestService.New(rURL: chain.evm, postData: xUTXORequest.data, sender: UTXOS.self) { [self] result, statusCode, error in
             guard let xAddressChainsList = result else {
                 completion([])
                 return
@@ -477,12 +453,9 @@ public final class AvaxAPI {
             return
         }
         
-        let function = chain.getUTXOs
-        let url = chain.evm
-        
-        let xBalanceRequest = PVMRPCModel.init(method: function, params: .init(addresses: addresses, limit: 100))
-        
-        RequestService.New(rURL: url, postData: xBalanceRequest.data, sender: UTXOS.self) { result, statusCode, error in
+        RequestService.New(rURL: chain.evm,
+                           postData: PVMRPCModel.init(method: chain.getUTXOs, params: .init(addresses: addresses, limit: 100)).data,
+                           sender: UTXOS.self) { result, statusCode, error in
             
             guard let output = result else {
                 completion(0)
@@ -499,25 +472,17 @@ public final class AvaxAPI {
     }
     
     class func getValidators(completion: @escaping (_ list: ValidatorsModel?)->()) {
-         
-        let xBalanceRequest = PVMRPCModel.init(method: .platformGetCurrentValidators)
-        
-        let url = "https://api.avax.network/ext/bc/P"
-        RequestService.New(rURL: url, postData: xBalanceRequest.data, sender: ValidatorsModel.self) { result, _, _ in
+        RequestService.New(rURL: ApiUrls.getValidatorsURL.rawValue,
+                           postData: PVMRPCModel.init(method: .platformGetCurrentValidators).data,
+                           sender: ValidatorsModel.self) { result, _, _ in
             completion(result)
         }
     }
     
     class func checkChainAddresses(addresses: [String], inner: Bool = false, completion: @escaping (_ result: AddressChains?)->()) {
-        
-        struct addressBatch: Codable {
-            let address: [String]
-        }
-        
-        let batch = addressBatch.init(address: addresses)
-        let url = "https://explorerapi.avax.network/v2/addressChains"
-        
-        RequestService.New(rURL: url, postData: batch.data, sender: AddressChains.self) { result, _, _ in
+        RequestService.New(rURL: ApiUrls.chainAddressBatch.rawValue,
+                           postData: AddressBatchRequest.init(address: addresses).data,
+                           sender: AddressChains.self) { result, _, _ in
             completion(result)
         }
     }
@@ -547,24 +512,20 @@ public final class AvaxAPI {
                 result.append(sign)
             }
         }
-        
         return result
     }
     
     class func getPlatformStake(addresses: [String], completion: @escaping ()->()) {
-         
-        let xBalanceRequest = PVMRPCModel.init(method: .platformGetStake, params: .init(addresses: addresses, limit: 100))
-         
-         RequestService.New(rURL: Constants.chainP.evm, postData: xBalanceRequest.data, sender: GetStaked.self) { result,_,_ in
+         RequestService.New(rURL: Constants.chainP.evm,
+                            postData: PVMRPCModel.init(method: .platformGetStake, params: .init(addresses: addresses, limit: 100)).data,
+                            sender: GetStaked.self) { result,_,_ in
              guard let StakeAmount = result else {
                  completion()
                  return }
              if let stake = Double.init(StakeAmount.result.staked) {
                  Constants.PChain.setStakedBalance(stakedBalance: stake / pow(10, Double.init(9)))
              }
-             
              completion()
          }
      }
-     
 }
