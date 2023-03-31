@@ -163,3 +163,20 @@ extension Array where Element == UInt8 {
         return array
     }
 }
+
+
+// MARK: - Errors
+
+public enum ApiEndpoints: String {
+    case avmGetUTXOs = "avm.getUTXOs"
+    case avmGetTx = "avm.getTx"
+    case avmIssueTx = "avm.issueTx"
+    case platformGetUTXOs = "platform.getUTXOs"
+    case platformGetTx = "platform.getTx"
+    case platformIssueTx = "platform.issueTx"
+    case avaxGetUTXOs = "avax.getUTXOs"
+    case avaxGetTx = "avax.getAtomicTx"
+    case avaxIssueTx = "avax.issueTx"
+    case platformGetCurrentValidators = "platform.getCurrentValidators"
+    case platformGetStake = "platform.getStake"
+}

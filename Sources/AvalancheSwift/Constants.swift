@@ -69,14 +69,14 @@ public class Chain {
     
     public let identifier: String
     public let blockchainId : BlockchainId
-    public let getUTXOs: String
-    public let issueTx: String
-    public let getTx: String
+    public let getUTXOs: ApiEndpoints
+    public let issueTx: ApiEndpoints
+    public let getTx: ApiEndpoints
     public let evm: String
     public let exportAvaxType: Int32
     public let importAvaxType: Int32
     
-    init(identifier: String, blockchainId: BlockchainId, getUTXOs: String, getTx: String, issueTx: String, evm: String, exportAvaxType: Int32, importAvaxType: Int32) {
+    init(identifier: String, blockchainId: BlockchainId, getUTXOs: ApiEndpoints, getTx: ApiEndpoints, issueTx: ApiEndpoints, evm: String, exportAvaxType: Int32, importAvaxType: Int32) {
         self.identifier = identifier
         self.blockchainId = blockchainId
         self.getUTXOs = getUTXOs
@@ -96,27 +96,27 @@ class Constants {
     
     public static let chainX = Chain.init(identifier: "X",
                                           blockchainId: .xBlockchain,
-                                          getUTXOs: "avm.getUTXOs",
-                                          getTx: "avm.getTx",
-                                          issueTx: "avm.issueTx",
+                                          getUTXOs: .avmGetUTXOs,
+                                          getTx: .avmGetTx,
+                                          issueTx: .avmIssueTx,
                                           evm: "https://api.avax.network/ext/bc/X",
                                           exportAvaxType: 4,
                                           importAvaxType: 3)
     
     public static let chainP = Chain.init(identifier: "P",
                                           blockchainId: .pBlockchain,
-                                          getUTXOs: "platform.getUTXOs",
-                                          getTx: "platform.getTx",
-                                          issueTx: "platform.issueTx",
+                                          getUTXOs: .platformGetUTXOs,
+                                          getTx: .platformGetTx,
+                                          issueTx: .platformIssueTx,
                                           evm: "https://api.avax.network/ext/bc/P",
                                           exportAvaxType: 18,
                                           importAvaxType: 17)
     
     public static let chainC = Chain.init(identifier: "C",
                                           blockchainId: .cBlockchain,
-                                          getUTXOs: "avax.getUTXOs",
-                                          getTx: "avax.getAtomicTx",
-                                          issueTx: "avax.issueTx",
+                                          getUTXOs: .avaxGetUTXOs,
+                                          getTx: .avaxGetTx,
+                                          issueTx: .avaxIssueTx,
                                           evm: "https://api.avax.network/ext/bc/C/avax",
                                           exportAvaxType: 1,
                                           importAvaxType: 0)

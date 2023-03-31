@@ -82,13 +82,6 @@ final class AvalancheSwiftTests: XCTestCase {
                        [4, 39, 212, 178, 42, 42, 120, 188, 221, 212, 86, 116, 44, 175, 145, 181, 107, 173, 191, 249, 133, 238, 25, 174, 241, 69, 115, 231, 52, 63, 214, 82])
     }
     
-    func testTransferableOutput() {
-        let transferOutput: TransferOutput = .init(type_id: 1, amount: 1, locktime: 1, threshold: 1, addresses: [])
-        let output = TransferableOutput.init(asset_id: "FvwEAhmxKfeiG8SnEvq42hc6whRyY3EFYAvebMqDNDGCgxN5Z",
-                                             output: transferOutput)
-        let encoded = TypeEncoder.encodeType(type: [output])
-    }
-    
     func testBigUIntTo8Byte() {
         XCTAssertEqual(TypeEncoder.byter(input: BigUInt.init(stringLiteral: "471"), len:8), [0, 0, 0, 0, 0, 0, 1, 215])
     }

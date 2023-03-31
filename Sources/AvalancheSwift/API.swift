@@ -16,6 +16,8 @@ public final class AvaxAPI {
     
     private static var privateKeySegwit: String?
     private static var privateKeyWeb3: String?
+    private static let fee: BigUInt = 350937
+
      
     class func checkState(delegate: AvalancheInitDelegate) {
         
@@ -132,11 +134,7 @@ public final class AvaxAPI {
                 var outputs: [TransferableOutput] = []
 
                 if availableBalance > 0 {
-                    let change = TransferOutput.init(type_id: 7,
-                                                     amount:availableBalance,
-                                                     locktime: 0,
-                                                     threshold: 1,
-                                                     addresses: [exportTo])
+                    let change = TransferOutput.init(amount:availableBalance, addresses: [exportTo])
                     let transferChange = TransferableOutput.init(asset_id: assetId.avaxAssetId.rawValue, output: change)
                     outputs.append(transferChange)
                 }
@@ -150,19 +148,12 @@ public final class AvaxAPI {
                                          inputs: inputs,
                                          memo: "")
                 
-               let output = TransferOutput.init(type_id: 7,
-                                                amount: amount,
-                                                locktime: 0,
-                                                threshold: 1,
-                                                addresses: [exportTo])
+               let output = TransferOutput.init(amount: amount, addresses: [exportTo])
                 
                 let lockedOutput = TransferableOutput.init(asset_id: assetId.avaxAssetId.rawValue,
                                                            output: output)
                 
-                let secpOutputOwner = SECP256K1OutputOwners.init(type_id: 11,
-                                                                 locktime: 0,
-                                                                 threshold: 1,
-                                                                 addresses: [info.rewardAddress])
+                let secpOutputOwner = SECP256K1OutputOwners.init(addresses: [info.rewardAddress])
                 
                 if let nodeId = info.nodeId {
                     let delegateTx = UnsignedDelegator.init(baseTx: baseTx,
@@ -189,13 +180,7 @@ public final class AvaxAPI {
                            completion: @escaping (_ txId: String?, _ tx: String?)->()) {
         
         let addresses = AddressesWallet.map({to.identifier + "-" + $0})
-        let blockchainId = to.blockchainId.rawValue
-        let source_chain = from.blockchainId.rawValue
-
-        let typeId = to.importAvaxType
         
-        let fee: BigUInt = 350937
-
         getAddressUTXOs(addresses: addresses, chain: to, sourceChain: from) { utxos in
         
             if let availableBalance =  Util.calculateChange(utxos: utxos, amount: 0) {
@@ -211,10 +196,10 @@ public final class AvaxAPI {
                                               amount: availableBalance - fee,
                                               asset_id: assetId.avaxAssetId.rawValue)
                  
-                let importTx = BaseImportTxEvm.init(typeID: typeId,
+                let importTx = BaseImportTxEvm.init(typeID: to.importAvaxType,
                                                     networkID: 1,
-                                                    blockchainID: blockchainId,
-                                                    sourceChain: source_chain,
+                                                    blockchainID: to.blockchainId.rawValue,
+                                                    sourceChain: from.blockchainId.rawValue,
                                                     importedInputs: [evmOutput],
                                                     outs: sorted)
                 
@@ -254,11 +239,7 @@ public final class AvaxAPI {
                     return
                 }
                 
-                let output = TransferOutput.init(type_id: 7,
-                                                 amount:availableBalance - fee,
-                                                 locktime: 0,
-                                                 threshold: 1,
-                                                 addresses: [importTo])
+                let output = TransferOutput.init(amount:availableBalance - fee, addresses: [importTo])
                 
                 let transferDest = TransferableOutput.init(asset_id: assetId.avaxAssetId.rawValue, output: output)
                 let transferInput = sorted
@@ -290,7 +271,6 @@ public final class AvaxAPI {
                              completion: @escaping (_ txId: String?, _ tx: String?)->()) {
         guard let nonce = BigUInt(nonce, radix: 16) else { return }
         
-        let fee: BigUInt = 350937
         let amount = Util.double2BigUInt(amount, 9)
 
         let addresses = AddressesWallet.map({from.identifier + "-" + $0})
@@ -301,11 +281,7 @@ public final class AvaxAPI {
                                      asset_id: assetId.avaxAssetId.rawValue,
                                      nonce: nonce)
          
-        let output = TransferOutput.init(type_id: 7,
-                                         amount: amount - fee,
-                                         locktime: 0,
-                                         threshold: 1,
-                                         addresses: [exportTo])
+        let output = TransferOutput.init(amount: amount - fee, addresses: [exportTo])
         
         let transferOutput = TransferableOutput.init(asset_id: assetId.avaxAssetId.rawValue, output: output)
         
@@ -336,20 +312,12 @@ public final class AvaxAPI {
                 var outputs: [TransferableOutput] = []
 
                 if availableBalance > 0 {
-                    let change = TransferOutput.init(type_id: 7,
-                                                     amount:availableBalance,
-                                                     locktime: 0,
-                                                     threshold: 1,
-                                                     addresses: [exportTo])
+                    let change = TransferOutput.init(amount:availableBalance, addresses: [exportTo])
                     let transferChange = TransferableOutput.init(asset_id: assetId.avaxAssetId.rawValue, output: change)
                     outputs.append(transferChange)
                 }
                    
-                let output = TransferOutput.init(type_id: 7,
-                                                 amount: amount - fee,
-                                                 locktime: 0,
-                                                 threshold: 1,
-                                                 addresses: [exportTo])
+                let output = TransferOutput.init(amount: amount - fee, addresses: [exportTo])
                 
                 let transferDest = TransferableOutput.init(asset_id: assetId.avaxAssetId.rawValue, output: output)
                 
@@ -375,7 +343,7 @@ public final class AvaxAPI {
     class func getAtomicTx(chain: Chain, id: String, completion: @escaping (_ txId: String?, _ tx: String?)->()) {
     
         let params = ParamsAtomicTx.init(txID: id, encoding: "hex")
-        let req = AtomicTx.init(jsonrpc: "2.0", id: 1, method: chain.getTx, params: params)
+        let req = AtomicTx.init(method: chain.getTx, params: params)
         
         RequestService.New(rURL: chain.evm, postData: req.data, sender: IssueTxResult.self) { result, _, _ in
             guard let result = result else { completion(nil, nil); return}
@@ -415,10 +383,8 @@ public final class AvaxAPI {
         
         let tx = Util.hexEncoding(data: buff)
         let url = chain.evm
-        let function = chain.issueTx
 
-        let paramsTx = ParamsTx.init(tx: tx, encoding: "hex")
-        let issueTx = IssueTx.init(jsonrpc: "2.0", id: 1, method: function, params: paramsTx)
+        let issueTx = IssueTx.init(method: chain.issueTx, params: .init(tx: tx))
         
         RequestService.New(rURL: url, postData: issueTx.data, sender: IssueTxResult.self) { result, _, _ in
             guard let result = result else { completion(nil, nil); return}
@@ -437,14 +403,8 @@ public final class AvaxAPI {
         let function = chain.getUTXOs
         let url = chain.evm
         
-        let xUTXORequest = PVMRPCModel.init(jsonrpc: "2.0",
-                                               id: 1,
-                                               method: function,
-                                               params: .init(address: nil,
-                                                             addresses: allAddresses,
-                                                             assetID: nil,
-                                                             sourceChain: sourceChain.identifier,
-                                                             limit: 200, encoding: "hex", subnetID: nil))
+        let xUTXORequest = PVMRPCModel.init(method: function, params: .init(addresses: allAddresses, limit: 200,
+                                                                            sourceChain: sourceChain.identifier))
         
         RequestService.New(rURL: url, postData: xUTXORequest.data, sender: UTXOS.self) { [self] result, statusCode, error in
             guard let xAddressChainsList = result else {
@@ -520,13 +480,7 @@ public final class AvaxAPI {
         let function = chain.getUTXOs
         let url = chain.evm
         
-        let xBalanceRequest = PVMRPCModel.init(jsonrpc: "2.0",
-                                               id: 1,
-                                               method: function,
-                                               params: .init(address: nil,
-                                                             addresses: addresses,
-                                                             assetID: nil,
-                                                             sourceChain: nil, limit: 100, encoding: "hex", subnetID: nil))
+        let xBalanceRequest = PVMRPCModel.init(method: function, params: .init(addresses: addresses, limit: 100))
         
         RequestService.New(rURL: url, postData: xBalanceRequest.data, sender: UTXOS.self) { result, statusCode, error in
             
@@ -540,17 +494,13 @@ public final class AvaxAPI {
                 let amount : String = item.substr(150, 16) ?? "N/A"
                 totalBalance += BigUInt(amount, radix: 16) ?? .zero
             }
-          
             completion(Double.init(totalBalance) / pow(10, Double.init(9)))
         }
     }
     
     class func getValidators(completion: @escaping (_ list: ValidatorsModel?)->()) {
          
-        let xBalanceRequest = PVMRPCModel.init(jsonrpc: "2.0",
-                                               id: 1,
-                                               method: "platform.getCurrentValidators",
-                                               params: nil)
+        let xBalanceRequest = PVMRPCModel.init(method: .platformGetCurrentValidators)
         
         let url = "https://api.avax.network/ext/bc/P"
         RequestService.New(rURL: url, postData: xBalanceRequest.data, sender: ValidatorsModel.self) { result, _, _ in
@@ -603,10 +553,7 @@ public final class AvaxAPI {
     
     class func getPlatformStake(addresses: [String], completion: @escaping ()->()) {
          
-         let xBalanceRequest = PVMRPCModel.init(jsonrpc: "2.0",
-                                                id: 1,
-                                                method: "platform.getStake",
-                                                params: .init(address: nil, addresses: addresses, assetID: nil, sourceChain: nil, limit: 100, encoding: "hex", subnetID: nil))
+        let xBalanceRequest = PVMRPCModel.init(method: .platformGetStake, params: .init(addresses: addresses, limit: 100))
          
          RequestService.New(rURL: Constants.chainP.evm, postData: xBalanceRequest.data, sender: GetStaked.self) { result,_,_ in
              guard let StakeAmount = result else {

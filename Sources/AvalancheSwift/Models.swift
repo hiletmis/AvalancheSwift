@@ -39,6 +39,13 @@ public struct AtomicTx: Codable {
     public let id: Int
     public let method: String
     public let params: ParamsAtomicTx
+    
+    init(method: ApiEndpoints, params: ParamsAtomicTx) {
+        self.jsonrpc = "2.0"
+        self.id = 1
+        self.method = method.rawValue
+        self.params = params
+    }
 }
 
 // MARK: - Params
@@ -65,11 +72,23 @@ public struct IssueTx: Codable {
     public let id: Int
     public let method: String
     public let params: ParamsTx
+    
+    init(method: ApiEndpoints, params: ParamsTx) {
+        self.jsonrpc = "2.0"
+        self.id = 1
+        self.method = method.rawValue
+        self.params = params
+    }
 }
 
 // MARK: - Params
 public struct ParamsTx: Codable {
     public let tx, encoding: String
+    
+    init(tx: String) {
+        self.tx = tx
+        self.encoding = "hex"
+    }
 }
 
 
@@ -96,6 +115,20 @@ public struct PVMRPCModel: Codable {
     public let id: Int
     public let method: String
     public let params: Params?
+    
+    init(method: ApiEndpoints, params: Params?) {
+        self.jsonrpc = "2.0"
+        self.id = 1
+        self.method = method.rawValue
+        self.params = params
+    }
+    
+    init(method: ApiEndpoints) {
+        self.jsonrpc = "2.0"
+        self.id = 1
+        self.method = method.rawValue
+        self.params = nil
+    }
 }
 
 // MARK: - Params
@@ -107,6 +140,36 @@ public struct Params: Codable {
     public let limit: Int?
     public let encoding: String?
     public let subnetID: String?
+    
+    init(address: String?, addresses: [String]?, assetID: String?, sourceChain: String?, limit: Int?, encoding: String?, subnetID: String?) {
+        self.address = address
+        self.addresses = addresses
+        self.assetID = assetID
+        self.sourceChain = sourceChain
+        self.limit = limit
+        self.encoding = encoding
+        self.subnetID = subnetID
+    }
+    
+    init(addresses: [String], limit: Int) {
+        self.address = nil
+        self.addresses = addresses
+        self.assetID = nil
+        self.sourceChain = nil
+        self.limit = limit
+        self.encoding = "hex"
+        self.subnetID = nil
+    }
+    
+    init(addresses: [String], limit: Int, sourceChain: String?) {
+        self.address = nil
+        self.addresses = addresses
+        self.assetID = nil
+        self.sourceChain = sourceChain
+        self.limit = limit
+        self.encoding = "hex"
+        self.subnetID = nil
+    }
 }
 
 // MARK: - PChainBalance
@@ -194,6 +257,14 @@ public struct TransferOutput: Codable {
     public let locktime: BigUInt
     public let threshold: Int32
     public let addresses: [String]
+    
+    init(amount: BigUInt, addresses: [String]) {
+        self.type_id = 7
+        self.amount = amount
+        self.locktime = 0
+        self.threshold = 1
+        self.addresses = addresses
+    }
 }
 // MARK: - SECP256K1OutputOwners
 public struct SECP256K1OutputOwners: Codable {
@@ -201,6 +272,13 @@ public struct SECP256K1OutputOwners: Codable {
     public let locktime: BigUInt
     public let threshold: Int32
     public let addresses: [String]
+    
+    init(addresses: [String]) {
+        self.type_id = 11
+        self.locktime = 0
+        self.threshold = 1
+        self.addresses = addresses
+    }
 }
 
 // MARK: - TransferableInput
