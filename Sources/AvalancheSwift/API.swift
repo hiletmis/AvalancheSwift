@@ -55,14 +55,17 @@ public final class AvaxAPI {
             }
         }
        
-        for item in AddressesWallet {
+        for item in AddressesIntX {
             xIntRequestBatch.append("X-" + item)
         }
-          
-        getUTXOs(addresses: xIntRequestBatch, chain: Constants.chainX) { balance in
-            Constants.XChain.addBalance(balance: balance, availableBalance: balance)
-            delegate?.balanceInitialized(chain: Constants.XChain)
+        
+        DispatchQueue.global(qos: .background).async  {
+            getUTXOs(addresses: xIntRequestBatch, chain: Constants.chainX) { balance in
+                Constants.XChain.addBalance(balance: balance, availableBalance: balance)
+                delegate?.balanceInitialized(chain: Constants.XChain)
+            }
         }
+        
     }
 
     class func getXBatch(_ seed: String, _ accountIndex: Int = 0) -> [String] {
