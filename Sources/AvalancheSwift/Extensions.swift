@@ -97,33 +97,6 @@ public extension String {
     }
 }
 
-
-extension SECP256K1OutputOwners {
-    func toByte() {
-        var encodedType:[UInt8] = []
-        
-        let typeId = self.type_id.byter(len: 4)
-        let locktime = self.locktime.byter(len: 8)
-        let threshold = self.threshold.byter(len: 4)
-        let addressSize = Int32(self.addresses.count).byter(len: 4)
-        
-        encodedType.append(contentsOf: typeId)
-        encodedType.append(contentsOf: locktime)
-        encodedType.append(contentsOf: threshold)
-        encodedType.append(contentsOf: addressSize)
-        
-        for address in self.addresses {
-            encodedType.append(contentsOf: Util.decodeSegwit(address: address))
-        }
-    }
-}
-
-
-
-
-
-
-
 extension Int32 {
     func byter(len: Int) -> [UInt8] {
         return withUnsafeBytes(of: self.bigEndian, Array.init)

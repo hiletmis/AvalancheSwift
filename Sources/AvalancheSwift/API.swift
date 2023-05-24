@@ -22,7 +22,7 @@ public final class AvaxAPI {
     private static let credID: [UInt8] = [0,0,0,1]
     private static let credType: [UInt8] = [0,0,0,9]
 
-    class func checkState(delegate: AvalancheInitDelegate) {
+    class func checkState(delegate: AvalancheInitDelegate?) {
         
         Constants.XChain.clearBalance()
         Constants.PChain.clearBalance()
@@ -31,53 +31,38 @@ public final class AvaxAPI {
         var xRequestBatch: [String] = []
         var pRequestBatch: [String] = []
         var xIntRequestBatch: [String] = []
-
-       checkChainAddresses(addresses: AddressesWallet) { result in
-           guard let result = result else {return}
-           
-           for item in result.addressChains {
-               if item.value.contains(BlockchainId.xBlockchain.rawValue) {
-                   xRequestBatch.append("X-" + item.key)
-               }
-               
-               if item.value.contains(BlockchainId.pBlockchain.rawValue) {
-                   pRequestBatch.append("P-" + item.key)
-               }
-           }
-           
-           DispatchQueue.global(qos: .background).async  {
-               getUTXOs(addresses: xRequestBatch, chain: Constants.chainX) { balance in
-                   Constants.XChain.addBalance(balance: balance, availableBalance: balance)
-                   delegate.balanceInitialized(chain: Constants.XChain)
-               }
-           }
-           
-           DispatchQueue.global(qos: .background).async  {
-               getUTXOs(addresses: pRequestBatch, chain: Constants.chainP) { balance in
-                   Constants.PChain.addBalance(balance: balance, availableBalance: balance)
-                   delegate.balanceInitialized(chain: Constants.PChain)
-                   
-                   getPlatformStake(addresses: pRequestBatch) {
-                       delegate.delegationInitialized(chain: Constants.PChain)
-                   }
-               }
-           }
-       }
+        
+        for item in AddressesWallet {
+            xRequestBatch.append("X-" + item)
+            pRequestBatch.append("P-" + item)
+        }
+        
+        DispatchQueue.global(qos: .background).async  {
+            getUTXOs(addresses: xRequestBatch, chain: Constants.chainX) { balance in
+                Constants.XChain.addBalance(balance: balance, availableBalance: balance)
+                delegate?.balanceInitialized(chain: Constants.XChain)
+            }
+        }
+        
+        DispatchQueue.global(qos: .background).async  {
+            getUTXOs(addresses: pRequestBatch, chain: Constants.chainP) { balance in
+                Constants.PChain.addBalance(balance: balance, availableBalance: balance)
+                delegate?.balanceInitialized(chain: Constants.PChain)
+                
+                getPlatformStake(addresses: pRequestBatch) {
+                    delegate?.delegationInitialized(chain: Constants.PChain)
+                }
+            }
+        }
        
-       checkChainAddresses(addresses: AddressesIntX, inner: true) { result in
-           if let result = result {
-               for item in result.addressChains {
-                   if item.value.contains(BlockchainId.xBlockchain.rawValue) {
-                       xIntRequestBatch.append("X-" + item.key)
-                   }
-               }
-                 
-               getUTXOs(addresses: xIntRequestBatch, chain: Constants.chainX) { balance in
-                   Constants.XChain.addBalance(balance: balance, availableBalance: balance)
-                   delegate.balanceInitialized(chain: Constants.XChain)
-               }
-           }
-       }
+        for item in AddressesWallet {
+            xIntRequestBatch.append("X-" + item)
+        }
+          
+        getUTXOs(addresses: xIntRequestBatch, chain: Constants.chainX) { balance in
+            Constants.XChain.addBalance(balance: balance, availableBalance: balance)
+            delegate?.balanceInitialized(chain: Constants.XChain)
+        }
     }
 
     class func getXBatch(_ seed: String, _ accountIndex: Int = 0) -> [String] {
@@ -88,11 +73,7 @@ public final class AvaxAPI {
             
             for i in 0..<50 {
                 let xAddressDepth = Web3Crypto.shared.deriveExtKey(xPrv: Base58Encoder.encode(xAccountDepth!), index: i)
-                let privKey:[UInt8] = Array(xAddressDepth![46...77])
-
-                let ripesha = Web3Crypto.shared.secp256k1Address(privKey: privKey)
-                let address = Web3Crypto.shared.bech32Address(ripesha: ripesha, hrp: "avax")
-
+                let address = Web3Crypto.shared.bech32Address(privKey: Array(xAddressDepth![46...77]), hrp: "avax")
                 addresses.append(address ?? "N/A")
             }
         }

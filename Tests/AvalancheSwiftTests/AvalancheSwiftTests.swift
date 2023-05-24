@@ -115,6 +115,7 @@ final class AvalancheSwiftTests: XCTestCase {
         let expectation = self.expectation(description: "Check Balance")
 
         AvaxAPI.initVars(AvalancheSwiftTests.seed)
+        AvaxAPI.checkState(delegate: nil)
         
         waitForExpectations(timeout: 90, handler: nil)
 
